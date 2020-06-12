@@ -6,7 +6,7 @@ import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.view.*
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
-import onInteract
+import myOnInteract
 
 suspend fun Container.panelStartWin95(scene: Scene) {
     var menuShown = false
@@ -52,7 +52,7 @@ suspend fun Container.panelStartWin95(scene: Scene) {
     ) {
         alignBottomToBottomOf(downPanel)
         alignLeftToLeftOf(downPanel)
-        onInteract {
+        myOnInteract {
             menuShown = !menuShown
         }
     }

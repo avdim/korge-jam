@@ -6,7 +6,7 @@ import com.soywiz.korge.view.View
 import com.soywiz.korge.view.alignBottomToTopOf
 import com.soywiz.korge.view.alignLeftToLeftOf
 import com.soywiz.korim.bitmap.Bitmap
-import onInteract
+import myOnInteract
 
 suspend fun Container.menuWin95(alignDownPanel: View, items: List<MenuItem>) {
     var previousYAnchor: View = alignDownPanel
@@ -14,7 +14,7 @@ suspend fun Container.menuWin95(alignDownPanel: View, items: List<MenuItem>) {
         alignLeftToLeftOf(alignDownPanel)
         previousYAnchor = menuButton(item.img, item.label) {
             alignBottomToTopOf(previousYAnchor)
-            onInteract {
+            myOnInteract {
                 item.clickAction()
             }
         }

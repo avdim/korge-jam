@@ -11,8 +11,8 @@ import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import onClickOnce
-import onInteract
+import myOnClickOnce
+import myOnInteract
 import windows.WINDOWS_PANEL_HEIGHT
 import windows.buttonWin95
 
@@ -25,7 +25,7 @@ class SceneMineSweeper(val myDependency: MyDependency) : Scene() {
             resourcesVfs["win95_logo.png"].readBitmap(),
             "Close"
         ) {
-            onInteract {
+            myOnInteract {
                 sceneContainer.changeTo<SceneDesktop>()
             }
         }
@@ -91,7 +91,7 @@ suspend fun Container.renderMineState(
             image(bitmap) {
                 xy(x0 + dx * col, y0 + dy * row)
                 scale = BITMAP_SCALE
-                onClickOnce {
+                myOnClickOnce {
                     userInput(Intent.Demine(col, row))
                 }
             }

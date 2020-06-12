@@ -38,7 +38,7 @@ class SceneLoading(val myDependency: MyDependency) : Scene() {
             }
         }
 
-        sceneView.onInteract {
+        sceneView.myOnInteract {
             sceneContainer.changeTo<SceneDesktop>()
         }
         launch {

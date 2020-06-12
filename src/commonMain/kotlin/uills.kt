@@ -6,14 +6,19 @@ import com.soywiz.korge.input.onClick
 import com.soywiz.korge.input.onDown
 import com.soywiz.korge.view.View
 
-inline fun <T : View> T.onInteract(noinline handler: suspend () -> Unit): T {
+inline fun <T : View> T.myOnInteract(noinline handler: suspend () -> Unit): T {
     onDown {
         handler()
     }
     return this
 }
 
-inline fun <T : View> T.onClickOnce(noinline handler: suspend (MouseEvents) -> Unit): T {
+inline fun <T : View> T.myOnClickOnce(noinline handler: () -> Unit): T {
+    mouse.down.once {
+        mouse.up.once {
+            handler()
+        }
+    }
     if (false) {//todo
         this.mouse.lastEvent.target == this
         this.stage?.mouse?.down?.once { }
@@ -21,6 +26,6 @@ inline fun <T : View> T.onClickOnce(noinline handler: suspend (MouseEvents) -> U
             e.id
         }
     }
-    onClick(handler)
+//    onClick(handler)
     return this
 }
