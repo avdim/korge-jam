@@ -21,8 +21,8 @@ suspend fun main() = Korge(
 )
 
 object MyModule : Module() {
-    override val mainScene: KClass<out Scene> = SceneDesktop::class//todo loading
-//    override val mainScene: KClass<out Scene> = SceneLoading::class
+//    override val mainScene: KClass<out Scene> = SceneDesktop::class//todo loading
+    override val mainScene: KClass<out Scene> = SceneLoading::class
     override val windowSize: SizeInt get() = SizeInt(WINDOWS_WIDTH, WINDOWS_HEIGHT)
     override val size: SizeInt get() = windowSize
     override val bgcolor: RGBA = Colors.BLACK
@@ -31,6 +31,7 @@ object MyModule : Module() {
         mapInstance(MyDependency("HELLO WORLD"))
         mapPrototype { SceneLoading(get()) }
         mapPrototype { SceneDesktop(get()) }
+        mapPrototype { SceneMineSweeper(get()) }
     }
 }
 

@@ -3,7 +3,6 @@ import com.soywiz.klock.seconds
 import com.soywiz.korau.sound.readSound
 import com.soywiz.korge.input.MouseEvents
 import com.soywiz.korge.input.mouse
-import com.soywiz.korge.input.onClick
 import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.time.delay
 import com.soywiz.korge.view.*
@@ -16,7 +15,7 @@ class SceneLoading(val myDependency: MyDependency) : Scene() {
     override suspend fun Container.sceneInit() {
         text("Loading...")
         val soundLoadWin95 = resourcesVfs["win95_loading.mp3"].readSound(streaming = true)
-        MouseEvents::click.get(stage!!.mouse).once {
+        MouseEvents::down.get(stage!!.mouse).once {
             // once stage mouse click handler
             soundLoadWin95.play()
         }
@@ -39,7 +38,7 @@ class SceneLoading(val myDependency: MyDependency) : Scene() {
             }
         }
 
-        sceneView.onClick {
+        sceneView.onInteract {
             sceneContainer.changeTo<SceneDesktop>()
         }
         launch {

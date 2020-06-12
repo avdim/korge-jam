@@ -1,4 +1,3 @@
-import com.soywiz.korge.input.onClick
 import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.Bitmap
@@ -16,17 +15,30 @@ class SceneDesktop(val myDependency: MyDependency) : Scene() {
     override suspend fun Container.sceneInit() {
         sceneContainer
         solidRect(WINDOWS_WIDTH_D, WINDOWS_HEIGHT_D, COLOR_WIN_DESKTOP)
-        val panel = solidRect(WINDOWS_WIDTH_D, WINDOWS_PANEL_HEIGHT, COLOR_WIN_PANEL)
+        val downPanel = solidRect(WINDOWS_WIDTH_D, WINDOWS_PANEL_HEIGHT, COLOR_WIN_PANEL)
             .alignBottomToBottomOf(sceneView)
 
-        buttonWin95(WINDOWS_PANEL_HEIGHT * 6, WINDOWS_PANEL_HEIGHT, resourcesVfs["iexplorer.png"].readBitmap(), "Internet Explorer") {
+        windowsStartMenu(downPanel, listOf(
+            MenuItem(resourcesVfs["iexplorer.png"].readBitmap(), "Internet Explorer") {
 
-        }
+            },
+            MenuItem(resourcesVfs["iexplorer.png"].readBitmap(), "Internet Explorer") {
 
-        buttonWin95(WINDOWS_PANEL_HEIGHT * 3, WINDOWS_PANEL_HEIGHT, resourcesVfs["win95_logo.png"].readBitmap(), "Start") {
-            alignBottomToBottomOf(panel)
-            alignLeftToLeftOf(panel)
-            onClick {
+            },
+            MenuItem(resourcesVfs["iexplorer.png"].readBitmap(), "Mine Sweeper") {
+                sceneContainer.changeTo<SceneMineSweeper>()
+            }
+        ))
+
+        buttonWin95(
+            WINDOWS_PANEL_HEIGHT * 3,
+            WINDOWS_PANEL_HEIGHT,
+            resourcesVfs["win95_logo.png"].readBitmap(),
+            "Start"
+        ) {
+            alignBottomToBottomOf(downPanel)
+            alignLeftToLeftOf(downPanel)
+            onInteract {
                 alpha = Random.nextDouble()
             }
         }
@@ -34,12 +46,30 @@ class SceneDesktop(val myDependency: MyDependency) : Scene() {
         text("MyScene2: ${myDependency.value}") { filtering = false }
         solidRect(100, 100, Colors.BLUE) {
             position(200, 200)
-            onClick {
+            onInteract {
 //                sceneContainer.changeTo<SceneLoading>(MyDependency("From MyScene2"))
             }
         }
     }
 }
+
+class MenuItem(val img: Bitmap, val label: String, val clickAction: suspend () -> Unit = {})
+
+suspend fun Container.windowsStartMenu(alignDownPanel: View, items: List<MenuItem>) {
+    var previousYAnchor: View = alignDownPanel
+    items.forEach { item ->
+        alignLeftToLeftOf(alignDownPanel)
+        previousYAnchor = menuButton(item.img, item.label) {
+            alignBottomToTopOf(previousYAnchor)
+            onInteract {
+                item.clickAction()
+            }
+        }
+    }
+}
+
+suspend fun Container.menuButton(img: Bitmap, text: String, lambda: Container.() -> Unit) =
+    buttonWin95(WINDOWS_PANEL_HEIGHT * 6, WINDOWS_PANEL_HEIGHT, img, text, lambda)
 
 suspend fun Container.buttonWin95(
     width: Double,
