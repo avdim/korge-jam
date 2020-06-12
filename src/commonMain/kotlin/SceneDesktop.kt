@@ -10,16 +10,20 @@ import kotlin.random.Random
 class SceneDesktop(val myDependency: MyDependency) : Scene() {
 
     companion object {
-        private const val PANEL_HEIGHT = 50.0
+
     }
 
     override suspend fun Container.sceneInit() {
         sceneContainer
         solidRect(WINDOWS_WIDTH_D, WINDOWS_HEIGHT_D, COLOR_WIN_DESKTOP)
-        val panel = solidRect(WINDOWS_WIDTH_D, PANEL_HEIGHT, COLOR_WIN_PANEL)
+        val panel = solidRect(WINDOWS_WIDTH_D, WINDOWS_PANEL_HEIGHT, COLOR_WIN_PANEL)
             .alignBottomToBottomOf(sceneView)
 
-        buttonWin95(PANEL_HEIGHT * 3, PANEL_HEIGHT, resourcesVfs["win95_logo.png"].readBitmap(), "Start") {
+        buttonWin95(WINDOWS_PANEL_HEIGHT * 6, WINDOWS_PANEL_HEIGHT, resourcesVfs["iexplorer.png"].readBitmap(), "Internet Explorer") {
+
+        }
+
+        buttonWin95(WINDOWS_PANEL_HEIGHT * 3, WINDOWS_PANEL_HEIGHT, resourcesVfs["win95_logo.png"].readBitmap(), "Start") {
             alignBottomToBottomOf(panel)
             alignLeftToLeftOf(panel)
             onClick {

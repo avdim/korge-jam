@@ -10,15 +10,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 
-const val WINDOWS_WIDTH = 900
-const val WINDOWS_HEIGHT = 600
-const val WINDOWS_WIDTH_D: Double = WINDOWS_WIDTH.toDouble()
-const val WINDOWS_HEIGHT_D: Double = WINDOWS_HEIGHT.toDouble()
-val COLOR_WIN_DESKTOP = hexColor(0x008080)
-val COLOR_WIN_PANEL = hexColor(0xc3c3c3)
-val COLOR_WIN_BUTTON_DEFAULT = COLOR_WIN_PANEL
-val COLOR_WIN_BUTTON_BORDER = hexColor(0xc3c3c3 - 0x202020)//COLOR_WIN_BUTTON_DEFAULT.minus(hexColor(0x202020))
-val COLOR_WIN_BUTTON_DOWN = COLOR_WIN_BUTTON_DEFAULT.plus(hexColor(0x202020))
 val BACKGROUND_SCOPE:CoroutineScope = object : CoroutineScope {
     override val coroutineContext: CoroutineContext get() = SupervisorJob()
 }
@@ -30,7 +21,8 @@ suspend fun main() = Korge(
 )
 
 object MyModule : Module() {
-    override val mainScene: KClass<out Scene> = SceneLoading::class//todo loading
+    override val mainScene: KClass<out Scene> = SceneDesktop::class//todo loading
+//    override val mainScene: KClass<out Scene> = SceneLoading::class
     override val windowSize: SizeInt get() = SizeInt(WINDOWS_WIDTH, WINDOWS_HEIGHT)
     override val size: SizeInt get() = windowSize
     override val bgcolor: RGBA = Colors.BLACK
