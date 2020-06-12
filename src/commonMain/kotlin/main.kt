@@ -17,7 +17,7 @@ suspend fun main() = Korge(width = 900, height = 600, bgcolor = Colors["#2b2b2b"
 		playOnce
 	}
 
-	image(resourcesVfs["win95.jpg"].readBitmap())
+	val backgroundWin95 = image(resourcesVfs["win95.jpg"].readBitmap())
 	val minDegrees = (-16).degrees
 	val maxDegrees = (+16).degrees
 
@@ -28,6 +28,9 @@ suspend fun main() = Korge(width = 900, height = 600, bgcolor = Colors["#2b2b2b"
 		position(256, 256)
 		alpha = 0.5
 	}
+	text("Press any key to continue")
+		.alignBottomToBottomOf(backgroundWin95)
+		.centerXOn(backgroundWin95)//todo blink
 
 	while (true) {
 		image.tween(image::rotation[minDegrees], time = 1.seconds, easing = Easing.EASE_IN_OUT)
