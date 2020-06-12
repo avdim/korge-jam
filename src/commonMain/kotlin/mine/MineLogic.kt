@@ -1,5 +1,0 @@
-package mine
-
-class MineLogic() {
-
-}
