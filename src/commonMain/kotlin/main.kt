@@ -13,8 +13,15 @@ import com.soywiz.korim.color.Colors
 import com.soywiz.korim.color.RGBA
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korinject.AsyncInjector
+import com.soywiz.korio.async.async
+import com.soywiz.korio.async.launch
 import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korma.geom.SizeInt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.coroutineScope
+import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
@@ -27,6 +34,9 @@ val COLOR_WIN_PANEL = hexColor(0xc3c3c3)
 val COLOR_WIN_BUTTON_DEFAULT = COLOR_WIN_PANEL
 val COLOR_WIN_BUTTON_BORDER = hexColor(0xc3c3c3 - 0x202020)//COLOR_WIN_BUTTON_DEFAULT.minus(hexColor(0x202020))
 val COLOR_WIN_BUTTON_DOWN = COLOR_WIN_BUTTON_DEFAULT.plus(hexColor(0x202020))
+val BACKGROUND_SCOPE:CoroutineScope = object : CoroutineScope {
+    override val coroutineContext: CoroutineContext get() = SupervisorJob()
+}
 
 suspend fun main() = Korge(
     Korge.Config(
@@ -52,8 +62,7 @@ class MyDependency(val value: String)
 class SceneLoading(val myDependency: MyDependency) : Scene() {
 
     override suspend fun Container.sceneInit() {
-        val soundLoadWin95 = resourcesVfs["win95_loading.mp3"].readSound()
-
+        val soundLoadWin95 = BACKGROUND_SCOPE.async { resourcesVfs["win95_loading.mp3"].readSound() }
         val backgroundWin95 = image(resourcesVfs["win95.jpg"].readBitmap())
         text("Press any key to continue")
             .alignBottomToBottomOf(backgroundWin95)
@@ -64,12 +73,12 @@ class SceneLoading(val myDependency: MyDependency) : Scene() {
         }
         MouseEvents::click.get(stage!!.mouse).once {
             // once stage mouse click handler
-            soundLoadWin95.play()
+            BACKGROUND_SCOPE.launch { soundLoadWin95.await().play() }
         }
-        //todo wait 2 seconds and open desktop
-        addUpdater {  }
-//        delay(2.seconds)
-//        sceneContainer.changeTo<SceneDesktop>()
+        launch {
+            delay(2.seconds)
+            sceneContainer.changeTo<SceneDesktop>()
+        }
     }
 }
 
