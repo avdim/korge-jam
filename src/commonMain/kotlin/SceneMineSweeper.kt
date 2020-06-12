@@ -2,6 +2,8 @@ import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.view.Container
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
+import windows.WINDOWS_PANEL_HEIGHT
+import windows.buttonWin95
 
 class SceneMineSweeper(val myDependency: MyDependency) : Scene() {
 

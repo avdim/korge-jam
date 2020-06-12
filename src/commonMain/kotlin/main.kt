@@ -7,6 +7,8 @@ import com.soywiz.korinject.AsyncInjector
 import com.soywiz.korma.geom.SizeInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import windows.WINDOWS_HEIGHT
+import windows.WINDOWS_WIDTH
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 
@@ -23,7 +25,10 @@ suspend fun main() = Korge(
 object MyModule : Module() {
     override val mainScene: KClass<out Scene> = SceneDesktop::class//todo loading
 //    override val mainScene: KClass<out Scene> = SceneLoading::class
-    override val windowSize: SizeInt get() = SizeInt(WINDOWS_WIDTH, WINDOWS_HEIGHT)
+    override val windowSize: SizeInt get() = SizeInt(
+    WINDOWS_WIDTH,
+    WINDOWS_HEIGHT
+)
     override val size: SizeInt get() = windowSize
     override val bgcolor: RGBA = Colors.BLACK
 
