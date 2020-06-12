@@ -3,10 +3,7 @@ package minesweeper
 import MyDependency
 import SceneDesktop
 import com.soywiz.korge.scene.Scene
-import com.soywiz.korge.view.Container
-import com.soywiz.korge.view.container
-import com.soywiz.korge.view.image
-import com.soywiz.korge.view.xy
+import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.Bitmap
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
@@ -107,6 +104,12 @@ suspend fun Container.renderMineState(
             }
         }
     }
+    if (state.checkWin()) {
+        text("win").xy(200,200)
+    }
+    if (state.checkLoose()) {
+        text("loose").xy(200,200)
+    }
 }
 
 private fun getCellBitmap(
@@ -138,7 +141,10 @@ private fun getCellBitmap(
     }
 
 fun isNear(currentRow: Int, currentCol: Int, row: Int, col: Int): Boolean {
-    return (col - currentCol).absoluteValue <= 1 && (row - currentRow).absoluteValue <= 1
+    val sameCells: Boolean = currentRow == row && currentCol == col
+    val maxDeltaOneCell: Boolean = (col - currentCol).absoluteValue <= 1 && (row - currentRow).absoluteValue <= 1
+
+    return !sameCells && maxDeltaOneCell
 }
 
 fun MineSweeperState.calcNearMines(currentRow: Int, currentCol: Int): Int =
@@ -152,4 +158,14 @@ sealed class Intent {
     class Demine(val col: Int, val row: Int) : Intent()
 }
 
+fun MineSweeperState.checkWin() = matrix.all {
+    it.all {
+        it.mine || it.state == MineSweeperState.CellState.Open
+    }
+}
 
+fun MineSweeperState.checkLoose() = matrix.any {
+    it.any {
+        it.state == MineSweeperState.CellState.Bang
+    }
+}

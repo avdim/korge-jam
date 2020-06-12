@@ -7,13 +7,7 @@ fun mineSweepReduce(state: MineSweeperState, intent: Intent): MineSweeperState =
         is Intent.Demine -> {
             val cell = state.matrix[intent.row][intent.col]
             if (cell.mine) {
-                state.copy(
-                    matrix = state.matrix.map {
-                        it.map {
-                            it.copy(state = MineSweeperState.CellState.Open)
-                        }
-                    }
-                ).let { state ->
+                state.openAll().let { state ->
                     state.copy(
                         matrix = state.matrix.transformI(intent.row) {
                             it.transformI(intent.col) {
@@ -49,6 +43,19 @@ fun MineSweeperState.openRecursive(currentRow: Int, currentCol: Int): MineSweepe
             }
         }
     }
+    if (result.checkWin()) {
+        result = result.openAll()
+    }
     return result
 }
+
+private fun MineSweeperState.openAll(): MineSweeperState =
+    copy(
+        matrix = matrix.map {
+            it.map {
+                it.copy(state = MineSweeperState.CellState.Open)
+            }
+        }
+    )
+
 
