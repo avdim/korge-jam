@@ -37,8 +37,18 @@ class SceneMineSweeper(val myDependency: MyDependency) : Scene() {
 
         val stateFlow = MutableStateFlow(randomState(5, 4, 7))
         val assets = MineSwipeAssets(
-            emptyBM = resourcesVfs["minesweeper/cellDepressed.png"].readBitmap(),
-            mineBM = resourcesVfs["minesweeper/mine.png"].readBitmap()
+            near0 = resourcesVfs["minesweeper/cellDepressed.png"].readBitmap(),
+            near1 = resourcesVfs["minesweeper/box1.png"].readBitmap(),
+            near2 = resourcesVfs["minesweeper/box2.png"].readBitmap(),
+            near3 = resourcesVfs["minesweeper/box3.png"].readBitmap(),
+            near4 = resourcesVfs["minesweeper/box4.png"].readBitmap(),
+            near5 = resourcesVfs["minesweeper/box5.png"].readBitmap(),
+            near6 = resourcesVfs["minesweeper/box6.png"].readBitmap(),
+            near7 = resourcesVfs["minesweeper/box7.png"].readBitmap(),
+            near8 = resourcesVfs["minesweeper/box8.png"].readBitmap(),
+            bang = resourcesVfs["minesweeper/mineExploded.png"].readBitmap(),
+            mine = resourcesVfs["minesweeper/mine.png"].readBitmap(),
+            hidden = resourcesVfs["minesweeper/cellCovered.png"].readBitmap()
         )
 
         container {
@@ -56,8 +66,18 @@ private const val CELL_SIZE = 32
 private const val BITMAP_SCALE = 2.0
 
 class MineSwipeAssets(
-    val emptyBM: Bitmap,
-    val mineBM: Bitmap
+    val near0: Bitmap,
+    val mine: Bitmap,
+    hidden: Bitmap,
+    bang: Bitmap,
+    near1: Bitmap,
+    near2: Bitmap,
+    near3: Bitmap,
+    near4: Bitmap,
+    near5: Bitmap,
+    near6: Bitmap,
+    near7: Bitmap,
+    near8: Bitmap
 )
 
 suspend fun Container.renderMineState(
@@ -75,7 +95,7 @@ suspend fun Container.renderMineState(
         val columns = state.matrix[row]
         for (col in columns.indices) {
             val cell = state.matrix[row][col]
-            val bitmap: Bitmap = if (cell.mine) assets.mineBM else assets.emptyBM
+            val bitmap: Bitmap = if (cell.mine) assets.mine else assets.near0
             image(bitmap) {
                 xy(x0 + dx * col, y0 + dy * row)
                 scale = BITMAP_SCALE
