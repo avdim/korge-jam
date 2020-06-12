@@ -1,4 +1,4 @@
-package mine
+package minesweeper
 
 import MyDependency
 import SceneDesktop
@@ -35,19 +35,10 @@ class SceneMineSweeper(val myDependency: MyDependency) : Scene() {
             }
         }
 
-        val stateFlow = MutableStateFlow(
-            MineState(
-                listOf(
-                    listOf(MineState.Cell(true), MineState.Cell(true), MineState.Cell(true)),
-                    listOf(MineState.Cell(false), MineState.Cell(true), MineState.Cell(true)),
-                    listOf(MineState.Cell(true), MineState.Cell(true), MineState.Cell(true)),
-                    listOf(MineState.Cell(true), MineState.Cell(true), MineState.Cell(true))
-                )
-            )
-        )
+        val stateFlow = MutableStateFlow(randomState(5, 4, 7))
         val assets = MineSwipeAssets(
-            emptyBM = resourcesVfs["mine/cellDepressed.png"].readBitmap(),
-            mineBM = resourcesVfs["mine/mine.png"].readBitmap()
+            emptyBM = resourcesVfs["minesweeper/cellDepressed.png"].readBitmap(),
+            mineBM = resourcesVfs["minesweeper/mine.png"].readBitmap()
         )
 
         container {
@@ -71,7 +62,7 @@ class MineSwipeAssets(
 
 suspend fun Container.renderMineState(
     assets: MineSwipeAssets,
-    state: MineState,
+    state: MineSweeperState,
     x: Double,
     y: Double,
     userInput: (Intent) -> Unit

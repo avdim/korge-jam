@@ -7,7 +7,7 @@ import com.soywiz.korinject.AsyncInjector
 import com.soywiz.korma.geom.SizeInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import mine.SceneMineSweeper
+import minesweeper.SceneMineSweeper
 import windows.WINDOWS_HEIGHT
 import windows.WINDOWS_WIDTH
 import kotlin.coroutines.CoroutineContext

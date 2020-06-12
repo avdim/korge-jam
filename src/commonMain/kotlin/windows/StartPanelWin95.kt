@@ -1,7 +1,7 @@
 package windows
 
 import MenuItem
-import mine.SceneMineSweeper
+import minesweeper.SceneMineSweeper
 import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.view.*
 import com.soywiz.korim.format.readBitmap

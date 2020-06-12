@@ -1,8 +1,8 @@
-package mine
+package minesweeper
 
 import lib.transformI
 
-fun mineSweepReduce(state: MineState, intent: Intent): MineState =
+fun mineSweepReduce(state: MineSweeperState, intent: Intent): MineSweeperState =
     when (intent) {
         is Intent.Demine -> {
             state.copy(
