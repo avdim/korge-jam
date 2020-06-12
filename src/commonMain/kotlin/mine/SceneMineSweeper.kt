@@ -3,12 +3,15 @@ package mine
 import MyDependency
 import SceneDesktop
 import com.soywiz.korge.scene.Scene
-import com.soywiz.korge.view.*
+import com.soywiz.korge.view.Container
+import com.soywiz.korge.view.image
+import com.soywiz.korge.view.xy
 import com.soywiz.korim.bitmap.Bitmap
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import onClickOnce
 import onInteract
 import windows.WINDOWS_PANEL_HEIGHT
 import windows.buttonWin95
@@ -40,9 +43,13 @@ class SceneMineSweeper(val myDependency: MyDependency) : Scene() {
                 )
             )
         )
+        val assets = MineSwipeAssets(
+            emptyBM = resourcesVfs["mine/cellDepressed.png"].readBitmap(),
+            mineBM = resourcesVfs["mine/mine.png"].readBitmap()
+        )
         stateFlow.collectLatest { state ->
             removeChildren()
-            renderMineState(state, 100.0, 100.0, userInput = {
+            renderMineState(assets, state, 100.0, 100.0, userInput = {
                 stateFlow.value = mineSweepReduce(state, it)//todo actor save concurrency
             })
         }
@@ -60,14 +67,18 @@ class SceneMineSweeper(val myDependency: MyDependency) : Scene() {
 private const val CELL_SIZE = 32
 private const val BITMAP_SCALE = 2.0
 
+class MineSwipeAssets(
+    val emptyBM: Bitmap,
+    val mineBM: Bitmap
+)
+
 suspend fun Container.renderMineState(
+    assets: MineSwipeAssets,
     state: MineState,
     x: Double,
     y: Double,
     userInput: (Intent) -> Unit
 ) {
-    val emptyBM = resourcesVfs["mine/cellDepressed.png"].readBitmap()
-    val mineBM = resourcesVfs["mine/mine.png"].readBitmap()
     val x0 = 0.0 + x
     val y0 = 0.0 + y
     val dx = CELL_SIZE + 8
@@ -76,11 +87,11 @@ suspend fun Container.renderMineState(
         val columns = state.matrix[row]
         for (col in columns.indices) {
             val cell = state.matrix[row][col]
-            val bitmap: Bitmap = if (cell.mine) mineBM else emptyBM
+            val bitmap: Bitmap = if (cell.mine) assets.mineBM else assets.emptyBM
             image(bitmap) {
                 xy(x0 + dx * col, y0 + dy * row)
                 scale = BITMAP_SCALE
-                onInteract {
+                onClickOnce {
                     userInput(Intent.Demine(col, row))
                 }
             }
@@ -89,7 +100,7 @@ suspend fun Container.renderMineState(
 }
 
 sealed class Intent {
-    class Demine(val col: Int, val row: Int):Intent()
+    class Demine(val col: Int, val row: Int) : Intent()
 }
 
 
