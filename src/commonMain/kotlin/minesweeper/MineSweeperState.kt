@@ -3,6 +3,10 @@ package minesweeper
 import lib.transformI
 
 data class MineSweeperState(
+    /**
+     * First index is row,
+     * Second index is col
+     */
     val matrix: List<List<Cell>>
 ) {
     data class Cell(

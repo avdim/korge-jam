@@ -36,7 +36,7 @@ class SceneMineSweeper(val myDependency: MyDependency) : Scene() {
             }
         }
 
-        val stateFlow = MutableStateFlow(randomState(5, 4, 7))
+        val stateFlow = MutableStateFlow(randomState(10, 10, 4))
         val assets = MineSwipeAssets(
             near0 = resourcesVfs["minesweeper/cellDepressed.png"].readBitmap(),
             near1 = resourcesVfs["minesweeper/box1.png"].readBitmap(),
@@ -137,10 +137,14 @@ private fun getCellBitmap(
         }
     }
 
-private fun MineSweeperState.calcNearMines(nearRow: Int, nearCol: Int): Int =
+fun isNear(currentRow: Int, currentCol: Int, row: Int, col: Int): Boolean {
+    return (col - currentCol).absoluteValue <= 1 && (row - currentRow).absoluteValue <= 1
+}
+
+fun MineSweeperState.calcNearMines(currentRow: Int, currentCol: Int): Int =
     matrix.withIndex().sumBy { (row, cols) ->
         cols.withIndex().count { (col, cell) ->
-            cell.mine && (col - nearCol).absoluteValue <= 1 && (row - nearRow).absoluteValue <= 1
+            cell.mine && isNear(currentRow, currentCol, row, col)
         }
     }
 
