@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-./gradlew jsWeb
+./gradlew jsWebMinWebpack
 rm -rf docs/*
-cp -r build/web/* docs/
+cp -r build/web-min-webpack/* docs/
 du -sh docs/*

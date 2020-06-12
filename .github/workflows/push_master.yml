@@ -38,6 +38,8 @@ jobs:
 
       - name: Commit files
         run: |
+          git fetch
+          git merge
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add docs
