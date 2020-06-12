@@ -1,8 +1,12 @@
+import com.soywiz.klock.seconds
 import com.soywiz.korau.sound.readSound
 import com.soywiz.korge.Korge
+import com.soywiz.korge.input.MouseEvents
+import com.soywiz.korge.input.mouse
 import com.soywiz.korge.input.onClick
 import com.soywiz.korge.scene.Module
 import com.soywiz.korge.scene.Scene
+import com.soywiz.korge.time.delay
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.Bitmap
 import com.soywiz.korim.color.Colors
@@ -31,7 +35,7 @@ suspend fun main() = Korge(
 )
 
 object MyModule : Module() {
-    override val mainScene: KClass<out Scene> = SceneDesktop::class//todo loading
+    override val mainScene: KClass<out Scene> = SceneLoading::class//todo loading
     override val windowSize: SizeInt get() = SizeInt(BASE_WIDTH, BASE_HEIGHT)
     override val size: SizeInt get() = windowSize
     override val bgcolor: RGBA = Colors.BLACK
@@ -49,7 +53,6 @@ class SceneLoading(val myDependency: MyDependency) : Scene() {
 
     override suspend fun Container.sceneInit() {
         val soundLoadWin95 = resourcesVfs["win95_loading.mp3"].readSound()
-        val lazyPlaySoundLoadWin95 by lazy { soundLoadWin95.play() }
 
         val backgroundWin95 = image(resourcesVfs["win95.jpg"].readBitmap())
         text("Press any key to continue")
@@ -58,9 +61,15 @@ class SceneLoading(val myDependency: MyDependency) : Scene() {
 
         sceneView.onClick {
             sceneContainer.changeTo<SceneDesktop>()
-            lazyPlaySoundLoadWin95//play sound once
         }
-
+        MouseEvents::click.get(stage!!.mouse).once {
+            // once stage mouse click handler
+            soundLoadWin95.play()
+        }
+        //todo wait 2 seconds and open desktop
+        addUpdater {  }
+//        delay(2.seconds)
+//        sceneContainer.changeTo<SceneDesktop>()
     }
 }
 
