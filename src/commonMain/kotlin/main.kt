@@ -1,5 +1,7 @@
 import com.soywiz.klock.*
+import com.soywiz.korau.sound.readSound
 import com.soywiz.korge.*
+import com.soywiz.korge.input.onClick
 import com.soywiz.korge.tween.*
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.*
@@ -8,7 +10,14 @@ import com.soywiz.korio.file.std.*
 import com.soywiz.korma.geom.*
 import com.soywiz.korma.interpolation.*
 
-suspend fun main() = Korge(width = 512, height = 512, bgcolor = Colors["#2b2b2b"]) {
+suspend fun main() = Korge(width = 900, height = 600, bgcolor = Colors["#2b2b2b"]) {
+	val soundLoadWin95 = resourcesVfs["win95_loading.mp3"].readSound()
+	val playOnce by lazy { soundLoadWin95.play() }
+	onClick {
+		playOnce
+	}
+
+	image(resourcesVfs["win95.jpg"].readBitmap())
 	val minDegrees = (-16).degrees
 	val maxDegrees = (+16).degrees
 
