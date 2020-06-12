@@ -11,6 +11,7 @@ import com.soywiz.korim.format.readBitmap
 import com.soywiz.korinject.AsyncInjector
 import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korma.geom.SizeInt
+import kotlin.random.Random
 import kotlin.reflect.KClass
 
 const val BASE_WIDTH = 900
@@ -26,7 +27,6 @@ val COLOR_WIN_BUTTON_DOWN = COLOR_WIN_BUTTON_DEFAULT.plus(hexColor(0x202020))
 suspend fun main() = Korge(
     Korge.Config(
         module = MyModule
-
     )
 )
 
@@ -76,9 +76,13 @@ class SceneDesktop(val myDependency: MyDependency) : Scene() {
         val panel = solidRect(BASE_WIDTH_D, PANEL_HEIGHT, COLOR_WIN_PANEL)
             .alignBottomToBottomOf(sceneView)
 
-        winButton(PANEL_HEIGHT * 3, PANEL_HEIGHT, resourcesVfs["win95_logo.png"].readBitmap())
-            .alignBottomToBottomOf(panel)
-            .alignLeftToLeftOf(panel)
+        winButton(PANEL_HEIGHT * 3, PANEL_HEIGHT, resourcesVfs["win95_logo.png"].readBitmap(), "Start") {
+            alignBottomToBottomOf(panel)
+            alignLeftToLeftOf(panel)
+            onClick {
+                alpha = Random.nextDouble()
+            }
+        }
 
         text("MyScene2: ${myDependency.value}") { filtering = false }
         solidRect(100, 100, Colors.BLUE) {
@@ -89,24 +93,42 @@ class SceneDesktop(val myDependency: MyDependency) : Scene() {
         }
     }
 
-    suspend fun Container.winButton(width: Double, height: Double, img: Bitmap? = null, text: String? = null) =
-        container {
-            val border = solidRect(width, height, COLOR_WIN_BUTTON_BORDER)
-            val insideButton = solidRect(width * 0.9, height * 0.9, COLOR_WIN_BUTTON_DEFAULT)
-                .centerOn(border)
+    suspend fun Container.winButton(
+        width: Double,
+        height: Double,
+        img: Bitmap? = null,
+        label: String? = null,
+        lambda: Container.() -> Unit
+    ) =
+        fixedSizeContainer(width, height) {
+            val btnContainer = this
+            val outerBorder = solidRect(width, height, COLOR_WIN_BUTTON_BORDER).centerOn(btnContainer)
+            val innerBorder = solidRect(width * 0.9, height * 0.9, COLOR_WIN_BUTTON_DEFAULT)
+                .centerOn(outerBorder)
 
 //            this.width = width
 //            this.height = height
 
-            val btnContainer = this
-            img?.let {
+            val imageIcon = img?.let {
                 image(it) {
-                    alignLeftToLeftOf(insideButton)
-                    centerYOn(insideButton)
                     size(height * 0.8, height * 0.8)
+                    alignLeftToLeftOf(innerBorder)
+                    centerYOn(innerBorder)
                 }
             }
-
+            if (label != null) {
+                if (imageIcon != null) {
+                    text(label) {
+                        alignLeftToRightOf(imageIcon)
+                        centerYOn(innerBorder)
+                        color = Colors.BLACK
+                    }
+                } else {
+                    text(label)
+                        .centerOn(innerBorder)
+                }
+            }
+            lambda()
         }
 
 }
