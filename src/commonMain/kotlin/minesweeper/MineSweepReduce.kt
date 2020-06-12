@@ -9,7 +9,7 @@ fun mineSweepReduce(state: MineSweeperState, intent: Intent): MineSweeperState =
                 matrix = state.matrix.transformI(intent.row) {
                     it.transformI(intent.col) {
                         it.copy(
-                            mine = !it.mine
+                            state = MineSweeperState.CellState.Open
                         )
                     }
                 }

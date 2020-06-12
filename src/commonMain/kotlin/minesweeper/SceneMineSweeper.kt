@@ -49,7 +49,7 @@ class SceneMineSweeper(val myDependency: MyDependency) : Scene() {
             near8 = resourcesVfs["minesweeper/box8.png"].readBitmap(),
             bang = resourcesVfs["minesweeper/mineExploded.png"].readBitmap(),
             mine = resourcesVfs["minesweeper/mine.png"].readBitmap(),
-            hidden = resourcesVfs["minesweeper/cellCovered.png"].readBitmap()
+            closed = resourcesVfs["minesweeper/cellCovered.png"].readBitmap()
         )
 
         container {
@@ -69,7 +69,7 @@ private const val BITMAP_SCALE = 2.0
 class MineSwipeAssets(
     val near0: Bitmap,
     val mine: Bitmap,
-    val hidden: Bitmap,
+    val closed: Bitmap,
     val bang: Bitmap,
     val near1: Bitmap,
     val near2: Bitmap,
@@ -96,10 +96,32 @@ suspend fun Container.renderMineState(
         val columns = state.matrix[row]
         for (col in columns.indices) {
             val cell = state.matrix[row][col]
-            val bitmap: Bitmap = if (cell.mine) {
+            val calcNearMines = { state.calcNearMines(row, col) }
+            val bitmap: Bitmap = getCellBitmap(cell, assets, calcNearMines)
+            image(bitmap) {
+                xy(x0 + dx * col, y0 + dy * row)
+                scale = BITMAP_SCALE
+                myOnClickOnce {
+                    userInput(Intent.Demine(col, row))
+                }
+            }
+        }
+    }
+}
+
+private fun getCellBitmap(
+    cell: MineSweeperState.Cell,
+    assets: MineSwipeAssets,
+    calcNearMines: () -> Int
+): Bitmap =
+    when (cell.state) {
+        is MineSweeperState.CellState.Close -> assets.closed
+        is MineSweeperState.CellState.Bang -> assets.bang
+        is MineSweeperState.CellState.Open -> {
+            if (cell.mine) {
                 assets.mine
             } else {
-                when(state.calcNearMines(col, row)) {
+                when (calcNearMines()) {
                     0 -> assets.near0
                     1 -> assets.near1
                     2 -> assets.near2
@@ -112,18 +134,10 @@ suspend fun Container.renderMineState(
                     else -> assets.bang
                 }
             }
-            image(bitmap) {
-                xy(x0 + dx * col, y0 + dy * row)
-                scale = BITMAP_SCALE
-                myOnClickOnce {
-                    userInput(Intent.Demine(col, row))
-                }
-            }
         }
     }
-}
 
-fun MineSweeperState.calcNearMines(nearCol: Int, nearRow: Int): Int =
+private fun MineSweeperState.calcNearMines(nearRow: Int, nearCol: Int): Int =
     matrix.withIndex().sumBy { (row, cols) ->
         cols.withIndex().count { (col, cell) ->
             cell.mine && (col - nearCol).absoluteValue <= 1 && (row - nearRow).absoluteValue <= 1
