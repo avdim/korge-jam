@@ -27,12 +27,13 @@ object MyModule : Module() {
     override val size: SizeInt get() = windowSize
     override val bgcolor: RGBA = Colors.BLACK
 
-    override suspend fun init(injector: AsyncInjector): Unit = injector.run {
+    override suspend fun AsyncInjector.configure() {
         mapInstance(MyDependency("HELLO WORLD"))
         mapPrototype { SceneLoading(get()) }
         mapPrototype { SceneDesktop(get()) }
         mapPrototype { SceneMineSweeper(get()) }
     }
+
 }
 
 class MyDependency(val value: String)
