@@ -1,22 +1,26 @@
-import com.soywiz.korge.gradle.*
+import com.soywiz.korge.gradle.GameCategory
+import com.soywiz.korge.gradle.KorgeGradlePlugin
+import com.soywiz.korge.gradle.korge
 
 buildscript {
-	val korgePluginVersion: String by project
+    val korgePluginVersion: String by project
 
-	repositories {
-		mavenLocal()
-		maven { url = uri("https://dl.bintray.com/korlibs/korlibs") }
-		maven { url = uri("https://plugins.gradle.org/m2/") }
-		mavenCentral()
-		google()
-	}
-	dependencies {
-		classpath("com.soywiz.korlibs.korge.plugins:korge-gradle-plugin:$korgePluginVersion")
-	}
+    repositories {
+        mavenLocal()
+        maven { url = uri("https://dl.bintray.com/korlibs/korlibs") }
+        maven { url = uri("https://plugins.gradle.org/m2/") }
+        mavenCentral()
+        google()
+    }
+    dependencies {
+        classpath("com.soywiz.korlibs.korge.plugins:korge-gradle-plugin:$korgePluginVersion")
+    }
 }
 
 apply<KorgeGradlePlugin>()
 
 korge {
-	id = "com.sample.demo"
+    id = "ru.avdim.korge.jam"
+    gameCategory = GameCategory.SIMULATION
+    backgroundColor = 0xff777777.toInt()//todo not work
 }
