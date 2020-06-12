@@ -4,6 +4,7 @@ import MyDependency
 import SceneDesktop
 import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.view.Container
+import com.soywiz.korge.view.container
 import com.soywiz.korge.view.image
 import com.soywiz.korge.view.xy
 import com.soywiz.korim.bitmap.Bitmap
@@ -19,6 +20,10 @@ import windows.buttonWin95
 class SceneMineSweeper(val myDependency: MyDependency) : Scene() {
 
     override suspend fun Container.sceneInit() {
+
+    }
+
+    override suspend fun Container.sceneMain() {
         buttonWin95(
             WINDOWS_PANEL_HEIGHT * 3,
             WINDOWS_PANEL_HEIGHT,
@@ -30,9 +35,6 @@ class SceneMineSweeper(val myDependency: MyDependency) : Scene() {
             }
         }
 
-    }
-
-    override suspend fun Container.sceneMain() {
         val stateFlow = MutableStateFlow(
             MineState(
                 listOf(
@@ -47,20 +49,15 @@ class SceneMineSweeper(val myDependency: MyDependency) : Scene() {
             emptyBM = resourcesVfs["mine/cellDepressed.png"].readBitmap(),
             mineBM = resourcesVfs["mine/mine.png"].readBitmap()
         )
-        stateFlow.collectLatest { state ->
-            removeChildren()
-            renderMineState(assets, state, 100.0, 100.0, userInput = {
-                stateFlow.value = mineSweepReduce(state, it)//todo actor save concurrency
-            })
+
+        container {
+            stateFlow.collectLatest { state ->
+                removeChildren()
+                renderMineState(assets, state, 100.0, 100.0, userInput = {
+                    stateFlow.value = mineSweepReduce(state, it)//todo actor save concurrency
+                })
+            }
         }
-//        container {
-//            addUpdater {
-//                circle().xy(Random[50, 400], Random[50, 400])
-//                repeat(3) {
-//                    addChild(mainLibrary.createMovieClip("sym1").position(randomPos()))
-//                }
-//            }
-//        }
     }
 }
 

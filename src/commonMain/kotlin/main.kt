@@ -24,7 +24,8 @@ suspend fun main() = Korge(
 )
 
 object MyModule : Module() {
-    override val mainScene: KClass<out Scene> = SceneDesktop::class//todo loading
+    override val mainScene: KClass<out Scene> = SceneMineSweeper::class
+//    override val mainScene: KClass<out Scene> = SceneDesktop::class
 //    override val mainScene: KClass<out Scene> = SceneLoading::class
     override val windowSize: SizeInt get() = SizeInt(
     WINDOWS_WIDTH,
