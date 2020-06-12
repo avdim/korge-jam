@@ -22,5 +22,6 @@ apply<KorgeGradlePlugin>()
 korge {
     id = "ru.avdim.korge.jam"
     gameCategory = GameCategory.SIMULATION
-//    backgroundColor = 0xff777777.toInt()
+//    backgroundColor
+
 }

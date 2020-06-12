@@ -1,10 +1,10 @@
-
 import com.soywiz.korau.sound.readSound
 import com.soywiz.korge.Korge
 import com.soywiz.korge.input.onClick
 import com.soywiz.korge.scene.Module
 import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.Bitmap
 import com.soywiz.korim.color.Colors
 import com.soywiz.korim.color.RGBA
 import com.soywiz.korim.format.readBitmap
@@ -17,6 +17,11 @@ const val BASE_WIDTH = 900
 const val BASE_HEIGHT = 600
 const val BASE_WIDTH_D: Double = BASE_WIDTH.toDouble()
 const val BASE_HEIGHT_D: Double = BASE_HEIGHT.toDouble()
+val COLOR_WIN_DESKTOP = hexColor(0x008080)
+val COLOR_WIN_PANEL = hexColor(0xc3c3c3)
+val COLOR_WIN_BUTTON_DEFAULT = COLOR_WIN_PANEL
+val COLOR_WIN_BUTTON_BORDER = hexColor(0xc3c3c3 - 0x202020)//COLOR_WIN_BUTTON_DEFAULT.minus(hexColor(0x202020))
+val COLOR_WIN_BUTTON_DOWN = COLOR_WIN_BUTTON_DEFAULT.plus(hexColor(0x202020))
 
 suspend fun main() = Korge(
     Korge.Config(
@@ -26,7 +31,7 @@ suspend fun main() = Korge(
 )
 
 object MyModule : Module() {
-    override val mainScene: KClass<out Scene> = SceneLoading::class
+    override val mainScene: KClass<out Scene> = SceneDesktop::class//todo loading
     override val windowSize: SizeInt get() = SizeInt(BASE_WIDTH, BASE_HEIGHT)
     override val size: SizeInt get() = windowSize
     override val bgcolor: RGBA = Colors.BLACK
@@ -67,11 +72,11 @@ class SceneDesktop(val myDependency: MyDependency) : Scene() {
 
     override suspend fun Container.sceneInit() {
         sceneContainer
-        solidRect(BASE_WIDTH_D, BASE_HEIGHT_D, hexColor(0x008080))
-        val panel = solidRect(BASE_WIDTH_D, PANEL_HEIGHT, hexColor(0xc3c3c3))
+        solidRect(BASE_WIDTH_D, BASE_HEIGHT_D, COLOR_WIN_DESKTOP)
+        val panel = solidRect(BASE_WIDTH_D, PANEL_HEIGHT, COLOR_WIN_PANEL)
             .alignBottomToBottomOf(sceneView)
 
-        image(resourcesVfs["win95_logo.png"].readBitmap())
+        winButton(PANEL_HEIGHT * 3, PANEL_HEIGHT, resourcesVfs["win95_logo.png"].readBitmap())
             .alignBottomToBottomOf(panel)
             .alignLeftToLeftOf(panel)
 
@@ -84,8 +89,23 @@ class SceneDesktop(val myDependency: MyDependency) : Scene() {
         }
     }
 
-    suspend fun Container.button() =
+    suspend fun Container.winButton(width: Double, height: Double, img: Bitmap? = null, text: String? = null) =
         container {
+            val border = solidRect(width, height, COLOR_WIN_BUTTON_BORDER)
+            val insideButton = solidRect(width * 0.9, height * 0.9, COLOR_WIN_BUTTON_DEFAULT)
+                .centerOn(border)
+
+//            this.width = width
+//            this.height = height
+
+            val btnContainer = this
+            img?.let {
+                image(it) {
+                    alignLeftToLeftOf(insideButton)
+                    centerYOn(insideButton)
+                    size(height * 0.8, height * 0.8)
+                }
+            }
 
         }
 
