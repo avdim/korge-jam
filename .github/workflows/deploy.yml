@@ -19,7 +19,7 @@ jobs:
           java-version: 1.8
 
       - name: Build JS web
-        run: deploy_to_github.sh
+        run: ./deploy_to_github.sh
 
       - name: Commit files
         run: |
