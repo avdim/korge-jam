@@ -16,6 +16,7 @@ import myOnClickOnce
 import myOnInteract
 import windows.WINDOWS_PANEL_HEIGHT
 import windows.buttonWin95
+import kotlin.math.absoluteValue
 
 class SceneMineSweeper(val myDependency: MyDependency) : Scene() {
 
@@ -68,16 +69,16 @@ private const val BITMAP_SCALE = 2.0
 class MineSwipeAssets(
     val near0: Bitmap,
     val mine: Bitmap,
-    hidden: Bitmap,
-    bang: Bitmap,
-    near1: Bitmap,
-    near2: Bitmap,
-    near3: Bitmap,
-    near4: Bitmap,
-    near5: Bitmap,
-    near6: Bitmap,
-    near7: Bitmap,
-    near8: Bitmap
+    val hidden: Bitmap,
+    val bang: Bitmap,
+    val near1: Bitmap,
+    val near2: Bitmap,
+    val near3: Bitmap,
+    val near4: Bitmap,
+    val near5: Bitmap,
+    val near6: Bitmap,
+    val near7: Bitmap,
+    val near8: Bitmap
 )
 
 suspend fun Container.renderMineState(
@@ -95,7 +96,22 @@ suspend fun Container.renderMineState(
         val columns = state.matrix[row]
         for (col in columns.indices) {
             val cell = state.matrix[row][col]
-            val bitmap: Bitmap = if (cell.mine) assets.mine else assets.near0
+            val bitmap: Bitmap = if (cell.mine) {
+                assets.mine
+            } else {
+                when(state.calcNearMines(col, row)) {
+                    0 -> assets.near0
+                    1 -> assets.near1
+                    2 -> assets.near2
+                    3 -> assets.near3
+                    4 -> assets.near4
+                    5 -> assets.near5
+                    6 -> assets.near6
+                    7 -> assets.near7
+                    8 -> assets.near8
+                    else -> assets.bang
+                }
+            }
             image(bitmap) {
                 xy(x0 + dx * col, y0 + dy * row)
                 scale = BITMAP_SCALE
@@ -106,6 +122,13 @@ suspend fun Container.renderMineState(
         }
     }
 }
+
+fun MineSweeperState.calcNearMines(nearCol: Int, nearRow: Int): Int =
+    matrix.withIndex().sumBy { (row, cols) ->
+        cols.withIndex().count { (col, cell) ->
+            cell.mine && (col - nearCol).absoluteValue <= 1 && (row - nearRow).absoluteValue <= 1
+        }
+    }
 
 sealed class Intent {
     class Demine(val col: Int, val row: Int) : Intent()
