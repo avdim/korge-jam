@@ -15,6 +15,7 @@ import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korma.geom.Point
 import com.soywiz.korma.geom.vector.rect
 import com.soywiz.korma.random.get
+import hexColor
 import myOnInteract
 import windows.WINDOWS_HEIGHT_D
 import windows.WINDOWS_WIDTH_D
@@ -24,7 +25,7 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
     lateinit var mainLibrary: AnLibrary
 
     override suspend fun Container.sceneInit() {
-
+        solidRect(WINDOWS_WIDTH_D, WINDOWS_HEIGHT_D, hexColor(0x110077))
         mainLibrary = resourcesVfs["cs/cs_mansion.ani"].readAni(views)
         val mainTimeLine: AnMovieClip = mainLibrary.createMainTimeLine()
         val zoomContainer = container {}
