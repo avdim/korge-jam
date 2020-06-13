@@ -99,22 +99,22 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
             myOnInteract {
 //                terrorist.timelineRunner.gotoAndPlay("fire")
                 SoundManager.csAwp.play()
-                terrorist.timelineRunner.gotoAndStop("die")
                 val targetPos = sniperContainer.globalToLocal(it.currentPosGlobal)
 
                 val zoomTarget = zoomContainer.globalToLocal(it.currentPosGlobal)
-                val zoom = 3.0
+                val zoom = 4.0
                 zoomContainer.scale = zoom
                 zoomContainer.position(zoomTarget * (1.0 - zoom))
 //                zoomContainer.position(it.currentPosGlobal - zoomContainer.localToGlobal(zoomTarget))
 
                 showSniper(targetPos.x, targetPos.y)
-                delay(300.milliseconds)
+                delay(200.milliseconds)
                 terrorist.timelineRunner.gotoAndPlay("die")
                 delay(2.seconds)
                 hideSniper()
                 zoomContainer.scale = 1.0
                 zoomContainer.xy(0.0, 0.0)
+                terrorist.timelineRunner.gotoAndPlay("default")
             }
         }
 
