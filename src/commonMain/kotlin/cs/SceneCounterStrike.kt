@@ -2,6 +2,7 @@ package cs
 
 import MyDependency
 import SoundManager
+import com.soywiz.klock.milliseconds
 import com.soywiz.klock.seconds
 import com.soywiz.korge.animate.AnLibrary
 import com.soywiz.korge.animate.AnMovieClip
@@ -26,7 +27,8 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 
         mainLibrary = resourcesVfs["cs/cs_mansion.ani"].readAni(views)
         val mainTimeLine: AnMovieClip = mainLibrary.createMainTimeLine()
-        sceneView += mainTimeLine
+        val zoomContainer = container {}
+        zoomContainer.addChild(mainTimeLine)
         mainTimeLine.scale = 0.7
         mainTimeLine.xy(0, 0)
 
@@ -39,6 +41,7 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         fun showSniper(targetX: Double, targetY: Double) {
             hideSniper()
             sniper = container {
+                alpha = 0.5
                 val SNIPER_SIZE = 200.0
                 val sniper = mainLibrary.createMovieClip("sniper")
                 sniper.width = SNIPER_SIZE
@@ -49,7 +52,7 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                 addChild(sniper)
 
                 graphics {
-                    beginFill(Colors.BLACK, 0.5)
+                    beginFill(Colors.BLACK, 1.0)
                     fun safeRect(x: Double, y: Double, w: Double, h: Double) {
                         if (w > 0 && h > 0) {
                             rect(x, y, w, h)
@@ -88,29 +91,30 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 
         }
 
-        val hitContainer = container {
-            scale = mainTimeLine.scale
-        }
-
         val terrorist = mainTimeLine["terrorist"] as AnMovieClip
         terrorist.timelineRunner.gotoAndPlay("default")
         val terroristMask = terrorist["my_mask"]!!
-        val oldX = terroristMask.globalX
-        val oldY = terroristMask.globalY
-        hitContainer.addChild(terroristMask)
-        terroristMask.scale *= terrorist.scale
-        terroristMask.x = hitContainer.globalToLocalX(oldX, oldY)
-        terroristMask.y = hitContainer.globalToLocalY(oldX, oldY)
         terroristMask.apply {
             alpha = 0.5
             myOnInteract {
-                terrorist.timelineRunner.gotoAndPlay("fire")
-//                terrorist.timelineRunner.gotoAndPlay("die")
+//                terrorist.timelineRunner.gotoAndPlay("fire")
                 SoundManager.csAwp.play()
+                terrorist.timelineRunner.gotoAndStop("die")
                 val targetPos = sniperContainer.globalToLocal(it.currentPosGlobal)
+
+                val zoomTarget = zoomContainer.globalToLocal(it.currentPosGlobal)
+                val zoom = 3.0
+                zoomContainer.scale = zoom
+                zoomContainer.position(zoomTarget * (1.0 - zoom))
+//                zoomContainer.position(it.currentPosGlobal - zoomContainer.localToGlobal(zoomTarget))
+
                 showSniper(targetPos.x, targetPos.y)
+                delay(300.milliseconds)
+                terrorist.timelineRunner.gotoAndPlay("die")
                 delay(2.seconds)
                 hideSniper()
+                zoomContainer.scale = 1.0
+                zoomContainer.xy(0.0, 0.0)
             }
         }
 
