@@ -29,7 +29,7 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         val mainTimeLine: AnMovieClip = mainLibrary.createMainTimeLine()
         val zoomContainer = container {}
         zoomContainer.addChild(mainTimeLine)
-        mainTimeLine.scale = 0.7
+        mainTimeLine.scale = 0.87
         mainTimeLine.xy(0, 0)
 
         val sniperContainer = container {  }
