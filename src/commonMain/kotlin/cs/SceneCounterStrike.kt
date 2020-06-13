@@ -21,8 +21,8 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         mainLibrary = resourcesVfs["cs/cs_mansion.ani"].readAni(views)
         val mainTimeLine: AnMovieClip = mainLibrary.createMainTimeLine()
         sceneView += mainTimeLine
-        mainTimeLine.scale = 0.3
-        mainTimeLine.xy(200, 200)
+        mainTimeLine.scale = 0.7
+        mainTimeLine.xy(0, 0)
 
         val terrorist = mainTimeLine["terrorist"] as AnMovieClip
         terrorist.timelineRunner.gotoAndPlay("default")
@@ -30,6 +30,8 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         terroristMask?.apply {
             alpha = 0.0
             myOnInteract {
+                terrorist.timelineRunner.gotoAndPlay("fire")
+//                terrorist.timelineRunner.gotoAndPlay("die")
                 SoundManager.csAwp.play()
             }
         }
