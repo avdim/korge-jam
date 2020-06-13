@@ -5,6 +5,7 @@ import com.soywiz.korge.input.mouse
 import com.soywiz.korge.input.onClick
 import com.soywiz.korge.input.onDown
 import com.soywiz.korge.view.View
+import com.soywiz.korim.color.RGBA
 
 inline fun <T : View> T.myOnInteract(noinline handler: suspend () -> Unit): T {
     onDown {
@@ -29,3 +30,5 @@ inline fun <T : View> T.myOnClickOnce(noinline handler: () -> Unit): T {
 //    onClick(handler)
     return this
 }
+
+fun hexColor(hex: Int): RGBA = RGBA(r = hex ushr 16 and 0xFF, g = hex ushr 8 and 0xFF, b = hex and 0xFF)
