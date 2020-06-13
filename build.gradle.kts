@@ -23,5 +23,5 @@ korge {
     id = "ru.avdim.korge.jam"
     gameCategory = GameCategory.SIMULATION
 //    backgroundColor
-
+    supportSwf()//todo ?
 }

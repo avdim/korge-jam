@@ -5,6 +5,7 @@ import com.soywiz.korim.color.Colors
 import com.soywiz.korim.color.RGBA
 import com.soywiz.korinject.AsyncInjector
 import com.soywiz.korma.geom.SizeInt
+import cs.SceneCounterStrike
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import minesweeper.SceneMineSweeper
@@ -24,7 +25,8 @@ suspend fun main() = Korge(
 )
 
 object MyModule : Module() {
-    override val mainScene: KClass<out Scene> = SceneMineSweeper::class
+    override val mainScene: KClass<out Scene> = SceneCounterStrike::class
+//    override val mainScene: KClass<out Scene> = SceneMineSweeper::class
 //    override val mainScene: KClass<out Scene> = SceneDesktop::class
 //    override val mainScene: KClass<out Scene> = SceneLoading::class
     override val windowSize: SizeInt get() = SizeInt(
@@ -39,6 +41,7 @@ object MyModule : Module() {
         mapPrototype { SceneLoading(get()) }
         mapPrototype { SceneDesktop(get()) }
         mapPrototype { SceneMineSweeper(get()) }
+        mapPrototype { SceneCounterStrike() }
     }
 
 }

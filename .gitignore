@@ -8,3 +8,5 @@ korge.keystore
 local.properties
 src/main/*
 .DS_Store
+temp
+RECOVER_*.fla
