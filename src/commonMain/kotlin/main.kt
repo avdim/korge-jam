@@ -53,7 +53,7 @@ class StartScene(val myDependency: MyDependency) : Scene() {
     }
 
     override suspend fun Container.sceneMain() {
-        sceneContainer.changeTo<SceneLoading>()
+        sceneContainer.changeTo<SceneCounterStrike>()
     }
 
 }

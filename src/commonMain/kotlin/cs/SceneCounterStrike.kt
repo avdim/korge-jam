@@ -17,8 +17,6 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
     lateinit var mainLibrary: AnLibrary
 
     override suspend fun Container.sceneInit() {
-        text("Loading...")
-        val soundAwp = resourcesVfs["cs/awp1.wav"].readSound(streaming = true)
 
         mainLibrary = resourcesVfs["cs/cs_mansion.ani"].readAni(views)
         val mainTimeLine: AnMovieClip = mainLibrary.createMainTimeLine()
@@ -37,7 +35,6 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
     }
 
     override suspend fun Container.sceneMain() {
-        val soundCtWin = resourcesVfs["cs/ctwin.wav"].readSound()
 
         if (false) {
             //val p2 = InteractivePlayer(board, Chip.CIRCLE)
