@@ -38,10 +38,10 @@ object MyModule : Module() {
 
     override suspend fun AsyncInjector.configure() {
         mapInstance(MyDependency("HELLO WORLD"))
+        mapPrototype { SceneCounterStrike(get()) }
         mapPrototype { SceneLoading(get()) }
         mapPrototype { SceneDesktop(get()) }
         mapPrototype { SceneMineSweeper(get()) }
-        mapPrototype { SceneCounterStrike() }
     }
 
 }

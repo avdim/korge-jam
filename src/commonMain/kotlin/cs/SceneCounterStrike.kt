@@ -1,5 +1,6 @@
 package cs
 
+import MyDependency
 import com.soywiz.klock.seconds
 import com.soywiz.korau.sound.readSound
 import com.soywiz.korge.animate.AnLibrary
@@ -18,28 +19,20 @@ import com.soywiz.korma.random.get
 import myOnInteract
 import kotlin.random.Random
 
-class SceneCounterStrike : Scene() {
+class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
     lateinit var mainLibrary: AnLibrary
 
     override suspend fun Container.sceneInit() {
-        val soundAwp = resourcesVfs["cs/awp1.wav"].readSound()
-        MouseEvents::down.get(stage!!.mouse).once {
-            // once stage mouse click handler
-            soundAwp.play()
-        }
+        text("Loading...")
+        val soundAwp = resourcesVfs["cs/awp1.wav"].readSound(streaming = true)
 
         mainLibrary = resourcesVfs["cs/cs_mansion.ani"].readAni(views)
-    }
-
-    override suspend fun Container.sceneMain() {
-        val soundCtWin = resourcesVfs["cs/ctwin.wav"].readSound()
-
         val mainTimeLine: AnMovieClip = mainLibrary.createMainTimeLine()
         sceneView += mainTimeLine
 
         val terroristMc = mainTimeLine.get("terrorist")
         terroristMc?.myOnInteract {
-//            soundAwp.play()
+            SoundManager.playCsAwp()
             terroristMc.alpha = Random.nextDouble()
         }
 
@@ -47,6 +40,10 @@ class SceneCounterStrike : Scene() {
             val row1 = mainTimeLine.get("row1")
             row1?.alpha = 0.3
         }
+    }
+
+    override suspend fun Container.sceneMain() {
+        val soundCtWin = resourcesVfs["cs/ctwin.wav"].readSound()
 
         if (false) {
             //val p2 = InteractivePlayer(board, Chip.CIRCLE)
