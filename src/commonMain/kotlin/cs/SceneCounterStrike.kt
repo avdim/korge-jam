@@ -1,7 +1,6 @@
 package cs
 
 import MyDependency
-import com.soywiz.korau.sound.readSound
 import com.soywiz.korge.animate.AnLibrary
 import com.soywiz.korge.animate.AnMovieClip
 import com.soywiz.korge.animate.serialization.readAni
@@ -24,10 +23,13 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         mainTimeLine.scale = 0.3
         mainTimeLine.xy(200, 200)
 
-        val terroristMc = mainTimeLine.get("terrorist")
-        terroristMc?.myOnInteract {
-            SoundManager.csAwp.play()
-            terroristMc.alpha = Random.nextDouble()
+        val terrorist = mainTimeLine["terrorist"]
+        val terroristMask = terrorist["my_mask"]
+        terroristMask?.apply {
+            alpha = 0.1
+            myOnInteract {
+                SoundManager.csAwp.play()
+            }
         }
 
         if (false) {
