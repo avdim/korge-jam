@@ -10,8 +10,7 @@ import com.soywiz.korio.file.std.resourcesVfs
 class SceneLoading(val myDependency: MyDependency) : Scene() {
 
     override suspend fun Container.sceneInit() {
-        text("Loading...")
-        SoundManager.playWin95Loading()
+        SoundManager.win95Loading.play()
     }
 
     override suspend fun Container.sceneMain() {

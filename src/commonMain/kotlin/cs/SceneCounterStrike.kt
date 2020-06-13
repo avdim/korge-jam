@@ -1,18 +1,12 @@
 package cs
 
 import MyDependency
-import com.soywiz.klock.seconds
 import com.soywiz.korau.sound.readSound
 import com.soywiz.korge.animate.AnLibrary
 import com.soywiz.korge.animate.AnMovieClip
 import com.soywiz.korge.animate.serialization.readAni
-import com.soywiz.korge.input.MouseEvents
-import com.soywiz.korge.input.mouse
-import com.soywiz.korge.input.onClick
 import com.soywiz.korge.scene.Scene
-import com.soywiz.korge.time.delay
 import com.soywiz.korge.view.*
-import com.soywiz.korio.async.launch
 import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korma.geom.Point
 import com.soywiz.korma.random.get
@@ -32,7 +26,7 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 
         val terroristMc = mainTimeLine.get("terrorist")
         terroristMc?.myOnInteract {
-            SoundManager.playCsAwp()
+            SoundManager.csAwp.play()
             terroristMc.alpha = Random.nextDouble()
         }
 

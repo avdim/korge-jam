@@ -8,36 +8,58 @@ import com.soywiz.korio.async.delay
 import com.soywiz.korio.async.launch
 import com.soywiz.korio.file.std.resourcesVfs
 import kotlinx.coroutines.GlobalScope
+import kotlin.reflect.KProperty
 
 object SoundManager {
 
-    private val soundsToPlay: MutableList<NativeSound> = mutableListOf()//todo save multi threads on JVM
+    private val soundsToPlay: MutableList<PlaySoundOptions> = mutableListOf() //todo multi threads
+    private val needLoadResources: MutableSet<String> = mutableSetOf()
+    private val soundByResource: MutableMap<String, NativeSound> = mutableMapOf()
 
-    private lateinit var win95Loading: NativeSound
-    private lateinit var csAwp: NativeSound
+    val csAwp by addSound("cs/awp1.wav")
+    val win95Loading by addSound("win95_loading.mp3")
+
+    private fun addSound(resource: String): AddSoundDelegate {
+        needLoadResources.add(resource)
+        return object : AddSoundDelegate {
+            override operator fun getValue(soundManager: SoundManager, property: KProperty<*>): MySound {
+                return object : MySound {
+                    override fun play(volume: Double) {
+                        soundsToPlay.add(PlaySoundOptions(resource, volume))
+                    }
+                }
+            }
+        }
+    }
 
     suspend fun firstSceneInit(stage: Stage) {
-        win95Loading = resourcesVfs["win95_loading.mp3"].readSound()
-        csAwp = resourcesVfs["cs/awp1.wav"].readSound(streaming = true)
+        needLoadResources.forEach { res: String ->
+            soundByResource[res] = resourcesVfs[res].readSound(streaming = true)
+        }
 
         MouseEvents::down.get(stage.mouse).once {
             GlobalScope.launch {
                 while (true) {
                     delay(50.milliseconds)
                     soundsToPlay.forEach {
-                        it.play()
+                        soundByResource[it.resource]?.play()
                     }
                     soundsToPlay.clear()
                 }
             }
         }
     }
+}
 
-    fun playCsAwp() {
-        soundsToPlay.add(csAwp)
-    }
+interface MySound {
+    fun play(volume: Double = 1.0)
+}
 
-    fun playWin95Loading() {
-        soundsToPlay.add(win95Loading)
-    }
+class PlaySoundOptions(
+    val resource: String,
+    val volume: Double // todo volume
+)
+
+interface AddSoundDelegate {
+    operator fun getValue(soundManager: SoundManager, property: KProperty<*>): MySound
 }
