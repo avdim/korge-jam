@@ -21,6 +21,8 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         mainLibrary = resourcesVfs["cs/cs_mansion.ani"].readAni(views)
         val mainTimeLine: AnMovieClip = mainLibrary.createMainTimeLine()
         sceneView += mainTimeLine
+        mainTimeLine.scale = 0.3
+        mainTimeLine.xy(200, 200)
 
         val terroristMc = mainTimeLine.get("terrorist")
         terroristMc?.myOnInteract {
