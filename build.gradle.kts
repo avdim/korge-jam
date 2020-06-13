@@ -24,4 +24,5 @@ korge {
     gameCategory = GameCategory.SIMULATION
 //    backgroundColor
     supportSwf()//todo ?
+    name = "Windows 95 simulator"
 }

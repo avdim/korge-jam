@@ -6,6 +6,7 @@ import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.view.*
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
+import cs.SceneCounterStrike
 import myOnInteract
 
 suspend fun Container.panelStartWin95(scene: Scene) {
@@ -21,9 +22,9 @@ suspend fun Container.panelStartWin95(scene: Scene) {
         menuWin95(downPanel, listOf(
             MenuItem(
                 resourcesVfs["iexplorer.png"].readBitmap(),
-                "Internet Explorer"
+                "Counter Strike"
             ) {
-
+                scene.sceneContainer.changeTo<SceneCounterStrike>()
             },
             MenuItem(
                 resourcesVfs["iexplorer.png"].readBitmap(),
