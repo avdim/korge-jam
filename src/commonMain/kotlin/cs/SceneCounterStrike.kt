@@ -30,11 +30,10 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         mainTimeLine.scale = 0.7
         mainTimeLine.xy(0, 0)
 
+        val sniperContainer = container {  }
         var sniper: View? = null
         fun hideSniper() {
-            if (sniper != null) {
-                removeChild(sniper)
-            }
+            sniper?.removeFromParent()
         }
 
         fun showSniper(targetX: Double, targetY: Double) {
@@ -50,7 +49,7 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                 addChild(sniper)
 
                 graphics {
-                    beginFill(Colors.BLACK, 1.0)
+                    beginFill(Colors.BLACK, 0.5)
                     fun safeRect(x: Double, y: Double, w: Double, h: Double) {
                         if (w > 0 && h > 0) {
                             rect(x, y, w, h)
@@ -83,20 +82,33 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                     )
                     endFill()
                 }
+            }.also {
+                sniperContainer.addChild(it)
             }
 
         }
 
+        val hitContainer = container {
+            scale = mainTimeLine.scale
+        }
+
         val terrorist = mainTimeLine["terrorist"] as AnMovieClip
         terrorist.timelineRunner.gotoAndPlay("default")
-        val terroristMask = terrorist["my_mask"]
-        terroristMask?.apply {
-            alpha = 0.0
+        val terroristMask = terrorist["my_mask"]!!
+        val oldX = terroristMask.globalX
+        val oldY = terroristMask.globalY
+        hitContainer.addChild(terroristMask)
+        terroristMask.scale *= terrorist.scale
+        terroristMask.x = hitContainer.globalToLocalX(oldX, oldY)
+        terroristMask.y = hitContainer.globalToLocalY(oldX, oldY)
+        terroristMask.apply {
+            alpha = 0.5
             myOnInteract {
                 terrorist.timelineRunner.gotoAndPlay("fire")
 //                terrorist.timelineRunner.gotoAndPlay("die")
                 SoundManager.csAwp.play()
-                showSniper(terrorist.globalX, terrorist.globalY)
+                val targetPos = sniperContainer.globalToLocal(it.currentPosGlobal)
+                showSniper(targetPos.x, targetPos.y)
                 delay(2.seconds)
                 hideSniper()
             }

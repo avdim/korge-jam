@@ -7,9 +7,9 @@ import com.soywiz.korge.input.onDown
 import com.soywiz.korge.view.View
 import com.soywiz.korim.color.RGBA
 
-inline fun <T : View> T.myOnInteract(noinline handler: suspend () -> Unit): T {
+inline fun <T : View> T.myOnInteract(noinline handler: suspend (MouseEvents) -> Unit): T {
     onDown {
-        handler()
+        handler(it)
     }
     return this
 }
