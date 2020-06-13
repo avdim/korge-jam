@@ -1,15 +1,23 @@
 package cs
 
 import MyDependency
+import SoundManager
 import com.soywiz.korge.animate.AnLibrary
 import com.soywiz.korge.animate.AnMovieClip
-import com.soywiz.korge.animate.play
 import com.soywiz.korge.animate.serialization.readAni
 import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.view.*
+import com.soywiz.korge.view.filter.ColorMatrixFilter
+import com.soywiz.korge.view.filter.ShaderFilter
+import com.soywiz.korim.color.ColorTransform
+import com.soywiz.korim.color.Colors
+import com.soywiz.korim.color.RGBA
 import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korma.geom.Point
+import com.soywiz.korma.geom.vector.circle
+import com.soywiz.korma.geom.vector.rect
 import com.soywiz.korma.random.get
+import hexColor
 import myOnInteract
 import kotlin.random.Random
 
@@ -34,6 +42,19 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 //                terrorist.timelineRunner.gotoAndPlay("die")
                 SoundManager.csAwp.play()
             }
+        }
+
+        container {
+            graphics {
+                beginFill(Colors.WHITE, 1.0)
+                rect(0.0, 0.0, 1000.0, 1000.0)
+                endFill()
+                beginFill(Colors.BLACK, 1.0)
+                circle(300.0, 300.0, 100.0)
+                endFill()
+            }.blendMode = BlendMode.ALPHA
+//            colorTransform = ColorTransform.Multiply(0.5, 0.5, 0.5, 1.0)
+//            solidRect(1000.0, 1000.0, Colors.BLACK).blendMode = BlendMode.MULTIPLY
         }
 
         if (false) {
