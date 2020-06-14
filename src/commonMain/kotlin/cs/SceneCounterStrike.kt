@@ -42,6 +42,7 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
         mainLibrary = resourcesVfs["cs/cs_mansion.ani"].readAni(views)
         mainTimeLine = mainLibrary.createMainTimeLine()
         zoomContainer = container {}
+        zoomContainer.visible = false
         zoomContainer.addChild(mainTimeLine)
         mainTimeLine.xy(0, 0)
         sniperContainer = container { }
@@ -72,6 +73,7 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
                 }
             }
         }
+        zoomContainer.visible = true
         sniperRifleLoopAnimation()
         state = CounterStrikeState(terrorists = terroristWrappers.map { it.model })
         addHrUpdater {
