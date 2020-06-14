@@ -30,9 +30,9 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
     lateinit var mainLibrary: AnLibrary
     lateinit var mainTimeLine: AnMovieClip
     lateinit var state: CounterStrikeState
-    lateinit var zoomContainer:Container
-    lateinit var sniperContainer:Container
-    lateinit var sniperRifle:Bitmap
+    lateinit var zoomContainer: Container
+    lateinit var sniperContainer: Container
+    lateinit var sniperRifle: Bitmap
     var sniper: View? = null
 
     private val terroristWrappers: MutableList<TerroristViewWrapper> = mutableListOf()
@@ -49,8 +49,8 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 
     override suspend fun Container.sceneMain() {
 
-        val terroristInteractHandler: (TerroristViewWrapper, com.soywiz.korge.input.MouseEvents) -> Unit =
-            { wrapper, mouseEvents ->
+        listOf("terrorist1", "terrorist2").map { instanceName ->
+            TerroristViewWrapper(mainTimeLine[instanceName]){ wrapper, mouseEvents ->
                 val targetPos = sniperContainer.globalToLocal(mouseEvents.currentPosGlobal)
                 val zoomTarget = zoomContainer.globalToLocal(mouseEvents.currentPosGlobal)
                 zoomContainer.scale = SNIPER_ZOOM
@@ -63,18 +63,8 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                     zoomContainer.scale = 1.0
                     zoomContainer.xy(0.0, 0.0)
                 }
-            }
-
-        listOf("terrorist1", "terrorist2").map { instanceName ->
-            TerroristViewWrapper(mainTimeLine[instanceName]).also { wrapper ->
+            }.also { wrapper ->
                 terroristWrappers.add(wrapper)
-
-                wrapper.terroristView["my_mask"]?.apply {
-                    alpha = 0.0
-                    myOnInteract {
-                        terroristInteractHandler(wrapper, it)
-                    }
-                }
             }
         }
 
@@ -208,7 +198,9 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 
 }
 
-class TerroristViewWrapper(mc: View?) {
+class TerroristViewWrapper(
+    mc: View?,
+    terroristInteractHandler: (TerroristViewWrapper, com.soywiz.korge.input.MouseEvents)->Unit) {
     val terroristView = mc as AnMovieClip
     val model: Terrorist = Terrorist(
         x = terroristView.x,
@@ -218,4 +210,13 @@ class TerroristViewWrapper(mc: View?) {
         coverX = terroristView.x + 100.0,
         coverY = terroristView.y
     )
+
+    init {
+        terroristView["my_mask"]?.let { mask ->
+            mask.alpha = 0.0
+            mask.myOnInteract {
+                terroristInteractHandler(this, it)
+            }
+        }
+    }
 }
