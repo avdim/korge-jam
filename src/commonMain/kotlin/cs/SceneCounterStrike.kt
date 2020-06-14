@@ -48,28 +48,25 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
     }
 
     override suspend fun Container.sceneMain() {
-
-        terroristWrappers =
-            listOf("terrorist1", "terrorist2")
-                .map { instanceName ->
-                    TerroristViewWrapper(mainTimeLine[instanceName]) { wrapper, mouseEvents ->
-                        val currentPosGlobal = mouseEvents.currentPosGlobal
-                        showSniperPos(currentPosGlobal)
-                        processEffects(state.kill(wrapper.model))
-                        launch {
-                            delay(1.seconds)
-                            hideSniper()
-                            zoomContainer.scale = 1.0
-                            zoomContainer.xy(0.0, 0.0)
-                        }
-                    }
+        terroristWrappers = listOf(
+            TerroristInstanceData("terrorist1", 60, 0)
+            , TerroristInstanceData("terrorist2", 100, 0, 0.5)
+        ).map { data ->
+            val instanceName = data.instanceName
+            TerroristViewWrapper(mainTimeLine[instanceName], data) { wrapper, mouseEvents ->
+                val currentPosGlobal = mouseEvents.currentPosGlobal
+                showSniperPos(currentPosGlobal)
+                processEffects(state.kill(wrapper.model))
+                launch {
+                    delay(1.seconds)
+                    hideSniper()
+                    zoomContainer.scale = 1.0
+                    zoomContainer.xy(0.0, 0.0)
                 }
-
+            }
+        }
         sniperRifleLoopAnimation()
-
-        state = CounterStrikeState(
-            terrorists = terroristWrappers.map { it.model }
-        )
+        state = CounterStrikeState(terrorists = terroristWrappers.map { it.model })
         addHrUpdater {
             val effects = state.tick()
             processEffects(effects)
@@ -199,8 +196,10 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 
 }
 
+class TerroristInstanceData(val instanceName: String, val coverDifX: Int, val coverDifY: Int, val speed: Double = 1.0)
 class TerroristViewWrapper(
     mc: View?,
+    instanceData: TerroristInstanceData,
     terroristInteractHandler: (TerroristViewWrapper, com.soywiz.korge.input.MouseEvents) -> Unit
 ) {
     val terroristView = mc as AnMovieClip
@@ -209,8 +208,9 @@ class TerroristViewWrapper(
         y = terroristView.y,
         openX = terroristView.x,
         openY = terroristView.y,
-        coverX = terroristView.x + 100.0,
-        coverY = terroristView.y
+        coverX = terroristView.x + instanceData.coverDifX,
+        coverY = terroristView.y + instanceData.coverDifY,
+        speed = instanceData.speed
     )
 
     init {

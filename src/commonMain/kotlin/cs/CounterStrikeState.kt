@@ -16,7 +16,8 @@ class Terrorist(
     val openY: Double,
     val coverX: Double,
     val coverY: Double,
-    var state: TerroristState = TerroristState.Hidden
+    var state: TerroristState = TerroristState.Hidden,
+    val speed: Double
 )
 
 const val FIRE_SINCE_TICK = 20
@@ -41,31 +42,31 @@ fun CounterStrikeState.tick(): List<SideEffect> {
     val shootProbability = 0.02
     val effects: MutableList<SideEffect> = mutableListOf()
 
-    terrorists.forEach { terrorist ->
-        val st = terrorist.state
+    terrorists.forEach { ter ->
+        val st = ter.state
         when (st) {
             is TerroristState.Hidden -> {
                 if (Random.nextDouble() < newTerroristProbability) {
-                    terrorist.state = TerroristState.Show(tick)
-                    effects.add(SideEffect.ShowTerrorist(terrorist))
-                    terrorist.x = terrorist.coverX
-                    terrorist.y = terrorist.coverY
+                    ter.state = TerroristState.Show(tick)
+                    effects.add(SideEffect.ShowTerrorist(ter))
+                    ter.x = ter.coverX
+                    ter.y = ter.coverY
                 }
             }
             is TerroristState.Die -> {
                 if (tick - st.tick > DIE_TICKS) {
-                    terrorist.state = TerroristState.Hidden
-                    effects.add(SideEffect.HideTerrorist(terrorist))
+                    ter.state = TerroristState.Hidden
+                    effects.add(SideEffect.HideTerrorist(ter))
                 }
             }
             is TerroristState.Show -> {
                 if (tick - st.tick > FIRE_SINCE_TICK) {
                     if (Random.nextDouble() < shootProbability) {
-                        effects.add(SideEffect.TerroristShot(terrorist))
+                        effects.add(SideEffect.TerroristShot(ter))
                     }
                 }
-                terrorist.x += (terrorist.openX - terrorist.x) / 10
-                terrorist.y += (terrorist.openY - terrorist.y) / 10
+                ter.x += (ter.openX - ter.x) / 10 * ter.speed
+                ter.y += (ter.openY - ter.y) / 10 * ter.speed
             }
         }
     }
