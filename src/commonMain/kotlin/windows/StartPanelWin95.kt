@@ -21,7 +21,7 @@ suspend fun Container.panelStartWin95(scene: Scene) {
     val startMenuContainer = container {
         menuWin95(downPanel, listOf(
             MenuItem(
-                resourcesVfs["iexplorer.png"].readBitmap(),
+                resourcesVfs["cs.png"].readBitmap(),
                 "Counter Strike"
             ) {
                 scene.sceneContainer.changeTo<SceneCounterStrike>()
@@ -33,8 +33,8 @@ suspend fun Container.panelStartWin95(scene: Scene) {
 
             },
             MenuItem(
-                resourcesVfs["iexplorer.png"].readBitmap(),
-                "Mine Sweeper"
+                resourcesVfs["mine.png"].readBitmap(),
+                "Minesweeper"
             ) {
                 scene.sceneContainer.changeTo<SceneMineSweeper>()
             }
