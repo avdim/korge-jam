@@ -56,12 +56,12 @@ class SceneStart(val myDependency: GlobalDependencies) : Scene() {
         text("Loading...")
         SoundManager.firstSceneInit(stage!!)
         myDependency.exitScene = {
-            sceneContainer.changeTo<SceneDesktop>()//todo Exception
+            sceneContainer.changeTo<SceneDesktop>()
         }
     }
 
     override suspend fun Container.sceneMain() {
-        sceneContainer.changeTo<SceneCounterStrike>()
+        sceneContainer.changeTo<SceneLoading>()
     }
 
 }
