@@ -81,15 +81,20 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
                 getTerroristWrapper(it).terroristView.y = it.y
             }
         }
+
+        //Health Bar:
         container {
             alpha = 0.5
             val medic = graphics {
                 beginFill(Colors.GREEN, 1.0)
-                rect(0, 0, 30, 30)
+                rect(20, 0, 20, 60)
+                endFill()
+                beginFill(Colors.GREEN, 1.0)
+                rect(0, 20, 60, 20)
                 endFill()
 //                anchor(0.0,0.0)
             }
-            text(state.health.toString(), 20.0, Colors.GREEN)
+            text(state.health.toString(), 46.0, Colors.GREEN)
                 .alignLeftToRightOf(medic)
                 .centerYOn(medic)
                 .addUpdater {
@@ -229,6 +234,7 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
                 }
             }
             is SideEffect.TerroristsWin -> {
+                hideSniper()
                 solidRect(WINDOWS_WIDTH_D, WINDOWS_HEIGHT_D, Colors.BLACK)
                     .alpha(0.0)
                     .addHrUpdater { alpha += 0.03 }
