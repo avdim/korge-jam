@@ -5,6 +5,7 @@ import SoundManager
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.milliseconds
 import com.soywiz.klock.seconds
+import com.soywiz.korev.MouseEvents
 import com.soywiz.korge.animate.AnLibrary
 import com.soywiz.korge.animate.AnMovieClip
 import com.soywiz.korge.animate.serialization.readAni
@@ -95,31 +96,29 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 
         }
 
+        val terroristInteractHandler: (com.soywiz.korge.input.MouseEvents) ->Unit = {
+            val targetPos = sniperContainer.globalToLocal(it.currentPosGlobal)
+            val zoomTarget = zoomContainer.globalToLocal(it.currentPosGlobal)
+            val zoom = 4.0
+            zoomContainer.scale = zoom
+            zoomContainer.position(zoomTarget * (1.0 - zoom))
+            showSniperTarget(targetPos.x, targetPos.y)
+        }
         val untypedMovieClip = mainTimeLine["terrorist1"]
-        val terrorist = untypedMovieClip as AnMovieClip
-        terrorist.timelineRunner.gotoAndPlay("default")
-        val terroristMask = terrorist["my_mask"]!!
+        val terroristView = untypedMovieClip as AnMovieClip
+        terroristView.timelineRunner.gotoAndPlay("default")
+        val terroristMask = terroristView["my_mask"]!!
         terroristMask.apply {
-            alpha = 0.5
+            alpha = 0.0
             myOnInteract {
-//                terrorist.timelineRunner.gotoAndPlay("fire")
-                SoundManager.csAwp.play()
-                val targetPos = sniperContainer.globalToLocal(it.currentPosGlobal)
-
-                val zoomTarget = zoomContainer.globalToLocal(it.currentPosGlobal)
-                val zoom = 4.0
-                zoomContainer.scale = zoom
-                zoomContainer.position(zoomTarget * (1.0 - zoom))
-//                zoomContainer.position(it.currentPosGlobal - zoomContainer.localToGlobal(zoomTarget))
-
-                showSniperTarget(targetPos.x, targetPos.y)
+                terroristInteractHandler(it)
                 delay(200.milliseconds)
-                terrorist.timelineRunner.gotoAndPlay("die")
+                terroristView.timelineRunner.gotoAndPlay("die")
                 delay(1.seconds)
                 hideSniper()
                 zoomContainer.scale = 1.0
                 zoomContainer.xy(0.0, 0.0)
-                terrorist.timelineRunner.gotoAndPlay("default")
+                terroristView.timelineRunner.gotoAndPlay("default")
             }
         }
 
@@ -145,10 +144,10 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                 Terrorist(
                     x = 0.0,
                     y = 0.0,
-                    showX = terrorist.x,
-                    showY = terrorist.y,
-                    hideX = terrorist.x + 100.0,
-                    hideY = terrorist.y
+                    showX = terroristView.x,
+                    showY = terroristView.y,
+                    hideX = terroristView.x + 100.0,
+                    hideY = terroristView.y
                 )
             )
         )
@@ -157,12 +156,16 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
             effects.forEach {
                 if (it is SideEffect.Shoot) {
                     it.terrorist
-                    terrorist.timelineRunner.gotoAndPlay("fire")
+                    terroristView.timelineRunner.gotoAndPlay("fire")
                     with(SoundManager) {
                         listOf(csAk1, csAk2).random().play()
                     }
                 }
+                if(it is SideEffect.Kill) {
+                    SoundManager.csAwp.play()
+                }
             }
+            state.terrorists
         }
     }
 }
