@@ -4,10 +4,10 @@ import kotlin.random.Random
 
 const val FIRE_SINCE_TICK = 20
 const val DIE_TICKS = 100
-const val MAX_TERRORISTS = 25
+const val MAX_TERRORISTS = 20
 const val BASE_SHOOT_PROBABILITY = 0.01
-const val BASE_TERRORIST_PROBABILITY = 0.003
-const val HIT_PROBABILITY = 0.2
+const val BASE_TERRORIST_PROBABILITY = 0.004
+const val HIT_PROBABILITY = 0.15
 const val HIT_HP = 10
 
 sealed class GameResult {
