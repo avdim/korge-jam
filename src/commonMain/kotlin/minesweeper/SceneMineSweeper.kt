@@ -9,6 +9,7 @@ import com.soywiz.korim.color.Colors
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
 import cs.SceneCounterStrike
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -28,7 +29,7 @@ class SceneMineSweeper(val myDependency: GlobalDependencies) : Scene() {
             COLOR_WIN_DESKTOP
         )
 
-        val stateFlow = MutableStateFlow(randomState(12, 20, 30))
+        val stateFlow = MutableStateFlow(randomState(12, 20, 15))
 
         val assets = MineSwipeAssets(
             near0 = resourcesVfs["minesweeper/cellDepressed.png"].readBitmap(),
@@ -49,7 +50,7 @@ class SceneMineSweeper(val myDependency: GlobalDependencies) : Scene() {
             launch {
                 stateFlow.collectLatest { state ->
                     removeChildren()
-                    renderMineState(background, assets, state, (900-640)/2.0, (600 - 12*32)/2.0, userInput = {
+                    renderMineState(myDependency, background, assets, state, (900-640)/2.0, (600 - 12*32)/2.0, userInput = {
                         stateFlow.value = mineSweepReduce(state, it)//todo actor save concurrency
                     })
                 }
@@ -97,6 +98,7 @@ class MineSwipeAssets(
 )
 
 suspend fun Container.renderMineState(
+    myDependency: GlobalDependencies,
     background:View,
     assets: MineSwipeAssets,
     state: MineSweeperState,
@@ -130,6 +132,11 @@ suspend fun Container.renderMineState(
             this.y -= WINDOWS_PANEL_HEIGHT/2
         }
         text("You Win!", 30.0, Colors.GREEN).centerOn(this).centerOn(rect)
+        stage?.myOnClickOnce {
+            GlobalScope.launch {
+                myDependency.exit()
+            }
+        }
     }
     if (state.checkLoose()) {
         val rect = solidRect(400, 100, Colors.LIGHTGRAY).apply {
@@ -138,6 +145,11 @@ suspend fun Container.renderMineState(
             this.y -= WINDOWS_PANEL_HEIGHT/2
         }
         text("You loose :(", 30.0, Colors.RED).centerOn(this).centerOn(rect)
+        stage?.myOnClickOnce {
+            GlobalScope.launch {
+                myDependency.exit()
+            }
+        }
     }
 }
 
