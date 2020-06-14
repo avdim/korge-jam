@@ -25,12 +25,10 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
     lateinit var mainLibrary: AnLibrary
 
     override suspend fun Container.sceneInit() {
-        solidRect(WINDOWS_WIDTH_D, WINDOWS_HEIGHT_D, hexColor(0x110077))
         mainLibrary = resourcesVfs["cs/cs_mansion.ani"].readAni(views)
         val mainTimeLine: AnMovieClip = mainLibrary.createMainTimeLine()
         val zoomContainer = container {}
         zoomContainer.addChild(mainTimeLine)
-        mainTimeLine.scale = 0.87
         mainTimeLine.xy(0, 0)
 
         val sniperContainer = container {  }
