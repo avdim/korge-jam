@@ -2,6 +2,7 @@ package cs
 
 import MyDependency
 import SoundManager
+import com.soywiz.klock.DateTime
 import com.soywiz.klock.milliseconds
 import com.soywiz.klock.seconds
 import com.soywiz.korge.animate.AnLibrary
@@ -11,14 +12,18 @@ import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.time.delay
 import com.soywiz.korge.view.*
 import com.soywiz.korim.color.Colors
+import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korma.geom.Point
+import com.soywiz.korma.geom.degrees
+import com.soywiz.korma.geom.sin
 import com.soywiz.korma.geom.vector.rect
+import com.soywiz.korma.interpolation.Easing
 import com.soywiz.korma.random.get
-import hexColor
 import myOnInteract
 import windows.WINDOWS_HEIGHT_D
 import windows.WINDOWS_WIDTH_D
+import kotlin.math.sin
 import kotlin.random.Random
 
 class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
@@ -31,13 +36,13 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         zoomContainer.addChild(mainTimeLine)
         mainTimeLine.xy(0, 0)
 
-        val sniperContainer = container {  }
+        val sniperContainer = container { }
         var sniper: View? = null
         fun hideSniper() {
             sniper?.removeFromParent()
         }
 
-        fun showSniper(targetX: Double, targetY: Double) {
+        fun showSniperTarget(targetX: Double, targetY: Double) {
             hideSniper()
             sniper = container {
                 alpha = 0.5
@@ -90,7 +95,8 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 
         }
 
-        val terrorist = mainTimeLine["terrorist"] as AnMovieClip
+        val untypedMovieClip = mainTimeLine["terrorist1"]
+        val terrorist = untypedMovieClip as AnMovieClip
         terrorist.timelineRunner.gotoAndPlay("default")
         val terroristMask = terrorist["my_mask"]!!
         terroristMask.apply {
@@ -106,10 +112,10 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                 zoomContainer.position(zoomTarget * (1.0 - zoom))
 //                zoomContainer.position(it.currentPosGlobal - zoomContainer.localToGlobal(zoomTarget))
 
-                showSniper(targetPos.x, targetPos.y)
+                showSniperTarget(targetPos.x, targetPos.y)
                 delay(200.milliseconds)
                 terrorist.timelineRunner.gotoAndPlay("die")
-                delay(2.seconds)
+                delay(1.seconds)
                 hideSniper()
                 zoomContainer.scale = 1.0
                 zoomContainer.xy(0.0, 0.0)
@@ -117,40 +123,25 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
             }
         }
 
-
-        if (false) {
-            val row1 = mainTimeLine.get("row1")
-            row1?.alpha = 0.3
-        }
     }
 
     override suspend fun Container.sceneMain() {
-
-        if (false) {
-            //val p2 = InteractivePlayer(board, Chip.CIRCLE)
-            val mc: AnMovieClip = mainLibrary.createMovieClip("sym1").position(randomPos())
-            addChild(mc)
-            mc.timelineRunner
-            //labels:
-            mc.timelineRunner.gotoAndStop("yellow")//or "default"
-//		mc.animate {}
-//		mc.play()
-
-            container {
+        image(resourcesVfs["cs/awp.png"].readBitmap())
+            .alignBottomToBottomOf(sceneView)
+            .alignRightToRightOf(sceneView)
+            .apply {
+                x += 50.0
+                y += 50.0
+                val baseX = x
+                val baseY = y
+//                anchor(0.8, 0.8)
                 addUpdater {
-                    removeChildren()
-                    circle().xy(Random[50, 400], Random[50, 400])
-                    repeat(3) {
-                        addChild(mainLibrary.createMovieClip("sym1").position(randomPos()))
-                    }
+                    val phase = DateTime.now().unixMillisDouble / 2000
+                    x = baseX + 40 * sin(phase * 1.8)
+                    y = baseY + 30 * sin(phase)
+                    rotation
                 }
             }
-        }
-
-//        launch {
-//            delay(3.seconds)
-//            soundCtWin.play()
-//        }
 
     }
 }
