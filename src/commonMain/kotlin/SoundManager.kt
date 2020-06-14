@@ -16,6 +16,8 @@ object SoundManager {
     private val needLoadResources: MutableSet<String> = mutableSetOf()
     private val soundByResource: MutableMap<String, NativeSound> = mutableMapOf()
 
+    val csAk1 by addSound("cs/ak47-1.wav")
+    val csAk2 by addSound("cs/ak47-2.wav")
     val csAwp by addSound("cs/awp1.wav")
     val csWin by addSound("cs/ctwin.wav")
     val win95Loading by addSound("win95_loading.mp3")

@@ -15,10 +15,7 @@ import com.soywiz.korim.color.Colors
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korma.geom.Point
-import com.soywiz.korma.geom.degrees
-import com.soywiz.korma.geom.sin
 import com.soywiz.korma.geom.vector.rect
-import com.soywiz.korma.interpolation.Easing
 import com.soywiz.korma.random.get
 import myOnInteract
 import windows.WINDOWS_HEIGHT_D
@@ -33,7 +30,6 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
     }
 
     override suspend fun Container.sceneMain() {
-//        val state = CounterStrikeState()
         val mainLibrary: AnLibrary = resourcesVfs["cs/cs_mansion.ani"].readAni(views)
         val mainTimeLine: AnMovieClip = mainLibrary.createMainTimeLine()
         val zoomContainer = container {}
@@ -144,7 +140,32 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                 }
             }
 
+        val state = CounterStrikeState(
+            terrorists = listOf(
+                Terrorist(
+                    x = 0.0,
+                    y = 0.0,
+                    showX = terrorist.x,
+                    showY = terrorist.y,
+                    hideX = terrorist.x + 100.0,
+                    hideY = terrorist.y
+                )
+            )
+        )
+        addHrUpdater {
+            val effects = state.tick()
+            effects.forEach {
+                if (it is SideEffect.Shoot) {
+                    it.terrorist
+                    terrorist.timelineRunner.gotoAndPlay("fire")
+                    with(SoundManager) {
+                        listOf(csAk1, csAk2).random().play()
+                    }
+                }
+            }
+        }
     }
 }
 
 fun randomPos(): Point = Point(Random[50, 400], Random[50, 400])
+fun todoSound(obj:Any?) = Unit
