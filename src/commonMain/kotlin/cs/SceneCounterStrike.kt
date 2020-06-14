@@ -26,77 +26,25 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
     val SNIPER_ZOOM = 3.0
     val SNIPER_SIZE = 320.0
 
+    lateinit var mainLibrary: AnLibrary
+    lateinit var mainTimeLine: AnMovieClip
     lateinit var state: CounterStrikeState
+    lateinit var zoomContainer:Container
+    lateinit var sniperContainer:Container
+    var sniper: View? = null
+
     private val terroristWrappers: MutableList<TerroristViewWrapper> = mutableListOf()
 
     override suspend fun Container.sceneInit() {
-
+        mainLibrary = resourcesVfs["cs/cs_mansion.ani"].readAni(views)
+        mainTimeLine = mainLibrary.createMainTimeLine()
+        zoomContainer = container {}
+        zoomContainer.addChild(mainTimeLine)
+        mainTimeLine.xy(0, 0)
+        sniperContainer = container { }
     }
 
     override suspend fun Container.sceneMain() {
-        val mainLibrary: AnLibrary = resourcesVfs["cs/cs_mansion.ani"].readAni(views)
-        val mainTimeLine: AnMovieClip = mainLibrary.createMainTimeLine()
-        val zoomContainer = container {}
-        zoomContainer.addChild(mainTimeLine)
-        mainTimeLine.xy(0, 0)
-        val sniperContainer = container { }
-        var sniper: View? = null
-
-        fun hideSniper() {
-            sniper?.removeFromParent()
-        }
-
-        fun showSniperTarget(targetX: Double, targetY: Double) {
-            hideSniper()
-            sniper = container {
-//                alpha = 0.5
-                val sniper = mainLibrary.createMovieClip("sniper")
-                sniper.width = SNIPER_SIZE
-                sniper.height = SNIPER_SIZE
-                sniper.x = targetX - SNIPER_SIZE / 2
-                sniper.y = targetY - SNIPER_SIZE / 2
-//            sniper.xy(targetX - SNIPER_SIZE/2, sniper.y - targetY)
-                addChild(sniper)
-
-                graphics {
-                    beginFill(Colors.BLACK, 1.0)
-                    fun safeRect(x: Double, y: Double, w: Double, h: Double) {
-                        if (w > 0 && h > 0) {
-                            rect(x, y, w, h)
-                        }
-                    }
-                    safeRect(0.0, 0.0, sniper.x, sniper.y)
-                    safeRect(sniper.x, 0.0, sniper.width, sniper.y)
-                    safeRect(sniper.x + sniper.width, 0.0, WINDOWS_WIDTH_D - sniper.x - sniper.width, sniper.y)
-
-                    safeRect(0.0, sniper.y, sniper.x, sniper.height)
-                    safeRect(
-                        sniper.x + sniper.width,
-                        sniper.y,
-                        WINDOWS_WIDTH_D - sniper.x - sniper.width,
-                        sniper.height
-                    )
-
-                    safeRect(0.0, sniper.y + sniper.height, sniper.x, WINDOWS_HEIGHT_D - sniper.y + sniper.height)
-                    safeRect(
-                        sniper.x,
-                        sniper.y + sniper.height,
-                        sniper.width,
-                        WINDOWS_HEIGHT_D - sniper.y + sniper.height
-                    )
-                    safeRect(
-                        sniper.x + sniper.width,
-                        sniper.y + sniper.height,
-                        WINDOWS_WIDTH_D - sniper.x - sniper.width,
-                        WINDOWS_HEIGHT_D - sniper.y + sniper.height
-                    )
-                    endFill()
-                }
-            }.also {
-                sniperContainer.addChild(it)
-            }
-
-        }
 
         val terroristInteractHandler: (TerroristViewWrapper, com.soywiz.korge.input.MouseEvents) -> Unit =
             { wrapper, mouseEvents ->
@@ -156,6 +104,61 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                 getTerroristWrapper(it).terroristView.x = it.x
                 getTerroristWrapper(it).terroristView.y = it.y
             }
+        }
+    }
+
+    fun hideSniper() {
+        sniper?.removeFromParent()
+    }
+
+    fun showSniperTarget(targetX: Double, targetY: Double) {
+        hideSniper()
+        sniper = sniperContainer.container {
+//                alpha = 0.5
+            val sniper = mainLibrary.createMovieClip("sniper")
+            sniper.width = SNIPER_SIZE
+            sniper.height = SNIPER_SIZE
+            sniper.x = targetX - SNIPER_SIZE / 2
+            sniper.y = targetY - SNIPER_SIZE / 2
+//            sniper.xy(targetX - SNIPER_SIZE/2, sniper.y - targetY)
+            addChild(sniper)
+
+            graphics {
+                beginFill(Colors.BLACK, 1.0)
+                fun safeRect(x: Double, y: Double, w: Double, h: Double) {
+                    if (w > 0 && h > 0) {
+                        rect(x, y, w, h)
+                    }
+                }
+                safeRect(0.0, 0.0, sniper.x, sniper.y)
+                safeRect(sniper.x, 0.0, sniper.width, sniper.y)
+                safeRect(sniper.x + sniper.width, 0.0, WINDOWS_WIDTH_D - sniper.x - sniper.width, sniper.y)
+
+                safeRect(0.0, sniper.y, sniper.x, sniper.height)
+                safeRect(
+                    sniper.x + sniper.width,
+                    sniper.y,
+                    WINDOWS_WIDTH_D - sniper.x - sniper.width,
+                    sniper.height
+                )
+
+                safeRect(0.0, sniper.y + sniper.height, sniper.x, WINDOWS_HEIGHT_D - sniper.y + sniper.height)
+                safeRect(
+                    sniper.x,
+                    sniper.y + sniper.height,
+                    sniper.width,
+                    WINDOWS_HEIGHT_D - sniper.y + sniper.height
+                )
+                safeRect(
+                    sniper.x + sniper.width,
+                    sniper.y + sniper.height,
+                    WINDOWS_WIDTH_D - sniper.x - sniper.width,
+                    WINDOWS_HEIGHT_D - sniper.y + sniper.height
+                )
+                endFill()
+            }
+        }.also {
+            sniperContainer.addChild(it)
         }
     }
 
