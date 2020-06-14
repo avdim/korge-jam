@@ -49,6 +49,9 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
     }
 
     override suspend fun Container.sceneMain() {
+        with(SoundManager) {
+            listOf(csLetsGo, csGoGoGo).random().play()
+        }
         terroristWrappers = listOf(
             TerroristInstanceData(instanceName = "terrorist1", coverDifX = 60, coverDifY = 0, speed = 1.0)
             , TerroristInstanceData(instanceName = "terrorist2", coverDifX = 100, coverDifY = 20, speed = 0.5)
@@ -160,6 +163,9 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
         }
         launch {
             delay(700)
+            if (Random.nextDouble() < 0.2) {
+                SoundManager.csEnemyDown.play()
+            }
             hideSniper()
         }
     }
@@ -250,7 +256,7 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
             }
             is SideEffect.Hit -> {
                 if (Random.nextDouble() < 0.2) {
-                    SoundManager.csHit.play()
+//                    SoundManager.csHit.play()
                 }
             }
         }

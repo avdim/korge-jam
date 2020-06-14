@@ -21,7 +21,10 @@ object SoundManager {
     val csAwp by addSound("cs/awp1.wav")
     val csWin by addSound("cs/ctwin.wav")
     val csLose by addSound("cs/terwin.wav")
-    val csHit by addSound("cs/ct_imhit.wav")
+//    val csHit by addSound("cs/ct_imhit.wav")
+    val csLetsGo by addSound("cs/letsgo.wav")
+    val csGoGoGo by addSound("cs/com_go.wav")
+    val csEnemyDown by addSound("cs/enemydown.wav")
     val win95Loading by addSound("win95_loading.mp3")
 
     private fun addSound(resource: String): AddSoundDelegate {
