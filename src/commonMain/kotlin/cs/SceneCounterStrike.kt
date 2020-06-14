@@ -5,7 +5,6 @@ import SoundManager
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.milliseconds
 import com.soywiz.klock.seconds
-import com.soywiz.korev.MouseEvents
 import com.soywiz.korge.animate.AnLibrary
 import com.soywiz.korge.animate.AnMovieClip
 import com.soywiz.korge.animate.serialization.readAni
@@ -15,16 +14,16 @@ import com.soywiz.korge.view.*
 import com.soywiz.korim.color.Colors
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
-import com.soywiz.korma.geom.Point
 import com.soywiz.korma.geom.vector.rect
-import com.soywiz.korma.random.get
 import myOnInteract
 import windows.WINDOWS_HEIGHT_D
 import windows.WINDOWS_WIDTH_D
 import kotlin.math.sin
-import kotlin.random.Random
 
 class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
+
+    lateinit var state: CounterStrikeState
+    val terroristModelToWrapper: MutableMap<Terrorist, TerroristViewWrapper> = mutableMapOf()//todo redundant
 
     override suspend fun Container.sceneInit() {
 
@@ -96,29 +95,34 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 
         }
 
-        val terroristInteractHandler: (com.soywiz.korge.input.MouseEvents) ->Unit = {
-            val targetPos = sniperContainer.globalToLocal(it.currentPosGlobal)
-            val zoomTarget = zoomContainer.globalToLocal(it.currentPosGlobal)
-            val zoom = 4.0
-            zoomContainer.scale = zoom
-            zoomContainer.position(zoomTarget * (1.0 - zoom))
-            showSniperTarget(targetPos.x, targetPos.y)
-        }
-        val untypedMovieClip = mainTimeLine["terrorist1"]
-        val terroristView = untypedMovieClip as AnMovieClip
-        terroristView.timelineRunner.gotoAndPlay("default")
-        val terroristMask = terroristView["my_mask"]!!
-        terroristMask.apply {
-            alpha = 0.0
-            myOnInteract {
-                terroristInteractHandler(it)
-                delay(200.milliseconds)
-                terroristView.timelineRunner.gotoAndPlay("die")
-                delay(1.seconds)
-                hideSniper()
-                zoomContainer.scale = 1.0
-                zoomContainer.xy(0.0, 0.0)
-                terroristView.timelineRunner.gotoAndPlay("default")
+        val terroristInteractHandler: (TerroristViewWrapper, com.soywiz.korge.input.MouseEvents) -> Unit =
+            { wrapper, mouseEvents ->
+                val model: Terrorist = terroristModelToWrapper.entries.first { it.value == wrapper }.key
+                state.kill(model)
+                val targetPos = sniperContainer.globalToLocal(mouseEvents.currentPosGlobal)
+                val zoomTarget = zoomContainer.globalToLocal(mouseEvents.currentPosGlobal)
+                val zoom = 4.0
+                zoomContainer.scale = zoom
+                zoomContainer.position(zoomTarget * (1.0 - zoom))
+                showSniperTarget(targetPos.x, targetPos.y)
+            }
+        val terWrapper = TerroristViewWrapper(mainTimeLine["terrorist1"])
+        terroristModelToWrapper.put(terWrapper.model, terWrapper)
+        with(terWrapper) {
+            terroristView.timelineRunner.gotoAndPlay("default")
+            val terroristMask = terroristView["my_mask"]!!
+            terroristMask.apply {
+                alpha = 0.0
+                myOnInteract {
+                    terroristInteractHandler(this@with, it)
+                    delay(200.milliseconds)
+                    terroristView.timelineRunner.gotoAndPlay("die")
+                    delay(1.seconds)
+                    hideSniper()
+                    zoomContainer.scale = 1.0
+                    zoomContainer.xy(0.0, 0.0)
+                    terroristView.timelineRunner.gotoAndPlay("default")
+                }
             }
         }
 
@@ -139,29 +143,23 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                 }
             }
 
-        val state = CounterStrikeState(
+        state = CounterStrikeState(
             terrorists = listOf(
-                Terrorist(
-                    x = 0.0,
-                    y = 0.0,
-                    showX = terroristView.x,
-                    showY = terroristView.y,
-                    hideX = terroristView.x + 100.0,
-                    hideY = terroristView.y
-                )
+                terWrapper.model
             )
         )
+        //todo put terroristModelToWrapper
         addHrUpdater {
             val effects = state.tick()
             effects.forEach {
-                if (it is SideEffect.Shoot) {
+                if (it is SideEffect.TerroristShot) {
                     it.terrorist
-                    terroristView.timelineRunner.gotoAndPlay("fire")
+                    terWrapper.terroristView.timelineRunner.gotoAndPlay("fire")
                     with(SoundManager) {
                         listOf(csAk1, csAk2).random().play()
                     }
                 }
-                if(it is SideEffect.Kill) {
+                if (it is SideEffect.PlayerShot) {
                     SoundManager.csAwp.play()
                 }
             }
@@ -170,5 +168,14 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
     }
 }
 
-fun randomPos(): Point = Point(Random[50, 400], Random[50, 400])
-fun todoSound(obj:Any?) = Unit
+class TerroristViewWrapper(mc: View?) {
+    val terroristView = mc as AnMovieClip
+    val model: Terrorist = Terrorist(
+        x = 0.0,
+        y = 0.0,
+        showX = terroristView.x,
+        showY = terroristView.y,
+        hideX = terroristView.x + 100.0,
+        hideY = terroristView.y
+    )
+}

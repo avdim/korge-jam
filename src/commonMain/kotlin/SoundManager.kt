@@ -12,7 +12,7 @@ import kotlin.reflect.KProperty
 
 object SoundManager {
 
-    private val soundsToPlay: MutableList<PlaySoundOptions> = mutableListOf() //todo multi threads
+    private var queueToPlay: List<PlaySoundOptions> = listOf()
     private val needLoadResources: MutableSet<String> = mutableSetOf()
     private val soundByResource: MutableMap<String, NativeSound> = mutableMapOf()
 
@@ -28,7 +28,10 @@ object SoundManager {
             override operator fun getValue(soundManager: SoundManager, property: KProperty<*>): MySound {
                 return object : MySound {
                     override fun play(volume: Double) {
-                        soundsToPlay.add(PlaySoundOptions(resource, volume))
+                        queueToPlay = queueToPlay + PlaySoundOptions(resource, volume)
+                        if (queueToPlay.size > 3) {
+                            queueToPlay = queueToPlay.takeLast(3)
+                        }
                     }
                 }
             }
@@ -44,10 +47,10 @@ object SoundManager {
             GlobalScope.launch {
                 while (true) {
                     delay(50.milliseconds)
-                    soundsToPlay.forEach {
+                    queueToPlay.forEach {
                         soundByResource[it.resource]?.play()
                     }
-                    soundsToPlay.clear()
+                    queueToPlay = listOf()
                 }
             }
         }
