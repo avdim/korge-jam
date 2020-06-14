@@ -3,7 +3,6 @@ package cs
 import MyDependency
 import SoundManager
 import com.soywiz.klock.DateTime
-import com.soywiz.klock.milliseconds
 import com.soywiz.klock.seconds
 import com.soywiz.korge.animate.AnLibrary
 import com.soywiz.korge.animate.AnMovieClip
@@ -15,6 +14,8 @@ import com.soywiz.korim.color.Colors
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korma.geom.vector.rect
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import myOnInteract
 import windows.WINDOWS_HEIGHT_D
 import windows.WINDOWS_WIDTH_D
@@ -35,9 +36,9 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         val zoomContainer = container {}
         zoomContainer.addChild(mainTimeLine)
         mainTimeLine.xy(0, 0)
-
         val sniperContainer = container { }
         var sniper: View? = null
+
         fun hideSniper() {
             sniper?.removeFromParent()
         }
@@ -104,25 +105,22 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                 zoomContainer.position(zoomTarget * (1.0 - zoom))
                 showSniperTarget(targetPos.x, targetPos.y)
                 processEffects(state.kill(wrapper.model))
+                launch {
+                    delay(1.seconds)
+                    hideSniper()
+                    zoomContainer.scale = 1.0
+                    zoomContainer.xy(0.0, 0.0)
+                }
             }
 
-        val terroristViewInstanceNames = listOf("terrorist1", "terrorist2")
-
-        terroristViewInstanceNames.map {instanceName->
+        listOf("terrorist1", "terrorist2").map { instanceName ->
             TerroristViewWrapper(mainTimeLine[instanceName]).also { wrapper ->
                 terroristWrappers.add(wrapper)
-                wrapper.terroristView.timelineRunner.gotoAndPlay("default")
-                val terroristMask = wrapper.terroristView["my_mask"]!!
-                terroristMask.apply {
+
+                wrapper.terroristView["my_mask"]?.apply {
                     alpha = 0.0
                     myOnInteract {
                         terroristInteractHandler(wrapper, it)
-                        delay(200.milliseconds)
-                        wrapper.terroristView.timelineRunner.gotoAndPlay("die")
-                        delay(1.seconds)
-                        hideSniper()
-                        zoomContainer.scale = 1.0
-                        zoomContainer.xy(0.0, 0.0)
                         wrapper.terroristView.timelineRunner.gotoAndPlay("default")
                     }
                 }
@@ -164,18 +162,36 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
     }
 
     private fun processEffect(effect: SideEffect) {
-        if (effect is SideEffect.TerroristShot) {
-            terroristWrappers
-                .first { it.model == effect.terrorist }
-                .terroristView.timelineRunner.gotoAndPlay("fire")
-            with(SoundManager) {
-                listOf(csAk1, csAk2).random().play()
+        when (effect) {
+            is SideEffect.TerroristShot -> {
+                getTerroristWrapper(effect.terrorist)
+                    .terroristView.timelineRunner.gotoAndPlay("fire")
+                with(SoundManager) {
+                    listOf(csAk1, csAk2).random().play()
+                }
+            }
+            is SideEffect.KillTerrorist -> {
+                effect.terrorist
+                SoundManager.csAwp.play()
+                launch {
+                    delay(200)
+                    val wrapper = getTerroristWrapper(effect.terrorist)
+                    wrapper.terroristView.timelineRunner.gotoAndPlay("die")
+                    delay(200)
+                    wrapper.terroristView.visible = false
+                }
+            }
+            is SideEffect.ShowTerrorist -> {
+                getTerroristWrapper(effect.terrorist).terroristView.visible = true
+            }
+            is SideEffect.HideTerrorist -> {//todo maybe redundate
+                getTerroristWrapper(effect.terrorist).terroristView.visible = false
             }
         }
-        if (effect is SideEffect.PlayerShot) {
-            SoundManager.csAwp.play()
-        }
     }
+
+    private fun getTerroristWrapper(terrorist: Terrorist): TerroristViewWrapper =
+        terroristWrappers.first { it.model == terrorist }
 
 }
 

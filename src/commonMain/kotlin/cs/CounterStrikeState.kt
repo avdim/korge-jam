@@ -30,7 +30,9 @@ sealed class TerroristState {
 
 sealed class SideEffect {
     class TerroristShot(val terrorist: Terrorist) : SideEffect()
-    class PlayerShot(val terrorist: Terrorist) : SideEffect()
+    class KillTerrorist(val terrorist: Terrorist) : SideEffect()
+    class ShowTerrorist(val terrorist: Terrorist) : SideEffect()
+    class HideTerrorist(val terrorist: Terrorist) : SideEffect()
 }
 
 fun CounterStrikeState.tick(): List<SideEffect> {
@@ -45,11 +47,13 @@ fun CounterStrikeState.tick(): List<SideEffect> {
             is TerroristState.Hidden -> {
                 if (Random.nextDouble() < newTerroristProbability) {
                     terrorist.state = TerroristState.Show(tick)
+                    effects.add(SideEffect.ShowTerrorist(terrorist))
                 }
             }
             is TerroristState.Die -> {
                 if (tick - st.tick > DIE_TICKS) {
-                    terrorist.state = TerroristState.Show(tick)
+                    terrorist.state = TerroristState.Hidden
+                    effects.add(SideEffect.HideTerrorist(terrorist))
                 }
             }
             is TerroristState.Show -> {
@@ -69,5 +73,5 @@ fun CounterStrikeState.tick(): List<SideEffect> {
 fun CounterStrikeState.kill(terrorist: Terrorist): List<SideEffect> {
     kills++
     terrorist.state = TerroristState.Die(tick)
-    return listOf(SideEffect.PlayerShot(terrorist))
+    return listOf(SideEffect.KillTerrorist(terrorist))
 }

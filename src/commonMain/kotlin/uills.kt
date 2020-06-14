@@ -2,7 +2,6 @@ import com.soywiz.korev.MouseEvent
 import com.soywiz.korev.addEventListener
 import com.soywiz.korge.input.MouseEvents
 import com.soywiz.korge.input.mouse
-import com.soywiz.korge.input.onClick
 import com.soywiz.korge.input.onDown
 import com.soywiz.korge.view.View
 import com.soywiz.korim.color.RGBA
