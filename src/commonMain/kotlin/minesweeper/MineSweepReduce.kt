@@ -32,9 +32,10 @@ fun MineSweeperState.openRecursive(currentRow: Int, currentCol: Int): MineSweepe
             }
         }
     )
+
     if (result.calcNearMines(currentRow, currentCol) == 0) {
         for (row in result.matrix.indices) {
-            for (col in result.matrix.indices) {
+            for (col in result.matrix[row].indices) {
                 if (result.matrix[row][col].state != MineSweeperState.CellState.Open) {
                     if (isNear(currentRow, currentCol, row, col)) {
                         result = result.openRecursive(row, col)

@@ -2,10 +2,10 @@ package minesweeper
 
 import GlobalDependencies
 import MenuItem
-import SceneDesktop
 import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.Bitmap
+import com.soywiz.korim.color.Colors
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
 import cs.SceneCounterStrike
@@ -13,33 +13,23 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import myOnClickOnce
-import myOnInteract
 import windows.*
 import kotlin.math.absoluteValue
 
 class SceneMineSweeper(val myDependency: GlobalDependencies) : Scene() {
 
     override suspend fun Container.sceneInit() {
-        solidRect(
+    }
+
+    override suspend fun Container.sceneMain() {
+        val background = solidRect(
             WINDOWS_WIDTH_D,
             WINDOWS_HEIGHT_D,
             COLOR_WIN_DESKTOP
         )
-    }
 
-    override suspend fun Container.sceneMain() {
-        buttonWin95(
-            WINDOWS_PANEL_HEIGHT * 3,
-            WINDOWS_PANEL_HEIGHT,
-            resourcesVfs["win95_logo.png"].readBitmap(),
-            "Close"
-        ) {
-            myOnInteract {
-                sceneContainer.changeTo<SceneDesktop>()
-            }
-        }
+        val stateFlow = MutableStateFlow(randomState(12, 20, 30))
 
-        val stateFlow = MutableStateFlow(randomState(10, 10, 4))
         val assets = MineSwipeAssets(
             near0 = resourcesVfs["minesweeper/cellDepressed.png"].readBitmap(),
             near1 = resourcesVfs["minesweeper/box1.png"].readBitmap(),
@@ -59,7 +49,7 @@ class SceneMineSweeper(val myDependency: GlobalDependencies) : Scene() {
             launch {
                 stateFlow.collectLatest { state ->
                     removeChildren()
-                    renderMineState(assets, state, 100.0, 100.0, userInput = {
+                    renderMineState(background, assets, state, (900-640)/2.0, (600 - 12*32)/2.0, userInput = {
                         stateFlow.value = mineSweepReduce(state, it)//todo actor save concurrency
                     })
                 }
@@ -115,6 +105,7 @@ class MineSwipeAssets(
 )
 
 suspend fun Container.renderMineState(
+    background:View,
     assets: MineSwipeAssets,
     state: MineSweeperState,
     x: Double,
@@ -123,8 +114,8 @@ suspend fun Container.renderMineState(
 ) {
     val x0 = 0.0 + x
     val y0 = 0.0 + y
-    val dx = CELL_SIZE + 8
-    val dy = CELL_SIZE + 8
+    val dx = CELL_SIZE
+    val dy = CELL_SIZE
     for (row in state.matrix.indices) {
         val columns = state.matrix[row]
         for (col in columns.indices) {
@@ -141,10 +132,20 @@ suspend fun Container.renderMineState(
         }
     }
     if (state.checkWin()) {
-        text("win").xy(200, 200)
+        val rect = solidRect(400, 100, Colors.LIGHTGRAY).apply {
+            alpha = 0.6
+            centerOn(background)
+            this.y -= WINDOWS_PANEL_HEIGHT/2
+        }
+        text("You Win!", 30.0, Colors.GREEN).centerOn(this).centerOn(rect)
     }
     if (state.checkLoose()) {
-        text("loose").xy(200, 200)
+        val rect = solidRect(400, 100, Colors.LIGHTGRAY).apply {
+            alpha = 0.6
+            centerOn(background)
+            this.y -= WINDOWS_PANEL_HEIGHT/2
+        }
+        text("You loose :(", 30.0, Colors.RED).centerOn(this).centerOn(rect)
     }
 }
 
@@ -194,7 +195,7 @@ sealed class Intent {
     class Demine(val col: Int, val row: Int) : Intent()
 }
 
-fun MineSweeperState.checkWin() = matrix.all {
+fun MineSweeperState.checkWin() = checkLoose().not() && matrix.all {
     it.all {
         it.mine || it.state == MineSweeperState.CellState.Open
     }
