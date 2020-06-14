@@ -4,9 +4,11 @@ import kotlin.random.Random
 
 const val FIRE_SINCE_TICK = 20
 const val DIE_TICKS = 100
-const val MAX_TERRORISTS = 2
-const val BASE_SHOOT_PROBABILITY = 0.02
-const val BASE_TERRORIST_PROBABILITY = 0.01
+const val MAX_TERRORISTS = 20
+const val BASE_SHOOT_PROBABILITY = 0.01
+const val BASE_TERRORIST_PROBABILITY = 0.002
+const val HIT_PROBABILITY = 0.2
+const val HIT_HP = 10
 
 sealed class GameResult {
     object Win : GameResult()
@@ -15,7 +17,7 @@ sealed class GameResult {
 
 class CounterStrikeState(
     val terrorists: List<Terrorist> = listOf(),
-    val health: Int = 100,
+    var health: Int = 100,
     var tick: Int = 0,
     var kills: Int = 0,
     var terroristCounter: Int = 0,
@@ -41,11 +43,13 @@ sealed class TerroristState {
 }
 
 sealed class SideEffect {
+    class Hit() : SideEffect()
     class TerroristShot(val terrorist: Terrorist) : SideEffect()
     class KillTerrorist(val terrorist: Terrorist) : SideEffect()
     class ShowTerrorist(val terrorist: Terrorist) : SideEffect()
     class HideTerrorist(val terrorist: Terrorist) : SideEffect()
     class CounterTerroristWin : SideEffect()
+    class TerroristsWin : SideEffect()
 }
 
 fun CounterStrikeState.tick(): List<SideEffect> {
@@ -87,6 +91,14 @@ fun CounterStrikeState.tick(): List<SideEffect> {
                 if (tick - st.tick > FIRE_SINCE_TICK) {
                     if (Random.nextDouble() < shootProbability) {
                         effects.add(SideEffect.TerroristShot(ter))
+                        if (Random.nextDouble() < HIT_PROBABILITY) {
+                            health -= HIT_HP
+                            effects.add(SideEffect.Hit())
+                            if (health <= 0 && result == null) {
+                                result = GameResult.Lose
+                                effects.add(SideEffect.TerroristsWin())
+                            }
+                        }
                     }
                 }
                 ter.x += (ter.openX - ter.x) / 10 * ter.speed

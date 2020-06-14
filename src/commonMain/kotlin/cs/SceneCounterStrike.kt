@@ -10,11 +10,11 @@ import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.Bitmap
 import com.soywiz.korim.color.Colors
+import com.soywiz.korim.color.RGBA
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korma.geom.Point
 import com.soywiz.korma.geom.vector.rect
-import hexColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -22,6 +22,7 @@ import myOnInteract
 import windows.WINDOWS_HEIGHT_D
 import windows.WINDOWS_WIDTH_D
 import kotlin.math.sin
+import kotlin.random.Random
 
 class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
 
@@ -77,6 +78,23 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
                 getTerroristWrapper(it).terroristView.x = it.x
                 getTerroristWrapper(it).terroristView.y = it.y
             }
+        }
+        container {
+            alpha = 0.5
+            val medic = graphics {
+                beginFill(Colors.GREEN, 1.0)
+                rect(0, 0, 30, 30)
+                endFill()
+//                anchor(0.0,0.0)
+            }
+            text(state.health.toString(), 20.0, Colors.GREEN)
+                .alignLeftToRightOf(medic)
+                .centerYOn(medic)
+                .addUpdater {
+                    text = state.health.toString()
+                    val healthF = state.health / 100.0f
+                    color = RGBA.float(1.0 - healthF, healthF, 0.0)
+                }
         }
     }
 
@@ -204,6 +222,23 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
                     delay(2000)
                     dependencies.exit()
 //                    sceneContainer.changeTo<SceneDesktop>()
+                }
+            }
+            is SideEffect.TerroristsWin -> {
+                SoundManager.csLose.play()
+                solidRect(WINDOWS_WIDTH_D, WINDOWS_HEIGHT_D, Colors.BLACK)
+                    .alpha(0.0)
+                    .addHrUpdater { alpha += 0.03 }
+                text("You loose :(", 50.0, Colors.RED).centerOn(this)
+                launch {
+                    delay(2000)
+                    dependencies.exit()
+//                    sceneContainer.changeTo<SceneDesktop>()
+                }
+            }
+            is SideEffect.Hit -> {
+                if (Random.nextDouble() < 0.2) {
+                    SoundManager.csHit.play()
                 }
             }
         }
