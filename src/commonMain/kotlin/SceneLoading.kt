@@ -7,7 +7,7 @@ import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.async.launch
 import com.soywiz.korio.file.std.resourcesVfs
 
-class SceneLoading(val myDependency: MyDependency) : Scene() {
+class SceneLoading(val myDependency: GlobalDependencies) : Scene() {
 
     override suspend fun Container.sceneInit() {
         SoundManager.win95Loading.play()

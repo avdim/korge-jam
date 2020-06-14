@@ -2,11 +2,24 @@ package cs
 
 import kotlin.random.Random
 
+const val FIRE_SINCE_TICK = 20
+const val DIE_TICKS = 100
+const val MAX_TERRORISTS = 2
+const val BASE_SHOOT_PROBABILITY = 0.02
+const val BASE_TERRORIST_PROBABILITY = 0.01
+
+sealed class GameResult {
+    object Win : GameResult()
+    object Lose : GameResult()
+}
+
 class CounterStrikeState(
     val terrorists: List<Terrorist> = listOf(),
     val health: Int = 100,
     var tick: Int = 0,
-    var kills: Int = 0
+    var kills: Int = 0,
+    var terroristCounter: Int = 0,
+    var result: GameResult? = null
 )
 
 class Terrorist(
@@ -20,9 +33,6 @@ class Terrorist(
     val speed: Double
 )
 
-const val FIRE_SINCE_TICK = 20
-const val DIE_TICKS = 100
-
 sealed class TerroristState {
     object Idle : TerroristState()
     class Die(val tick: Int) : TerroristState()
@@ -35,12 +45,14 @@ sealed class SideEffect {
     class KillTerrorist(val terrorist: Terrorist) : SideEffect()
     class ShowTerrorist(val terrorist: Terrorist) : SideEffect()
     class HideTerrorist(val terrorist: Terrorist) : SideEffect()
+    class CounterTerroristWin : SideEffect()
 }
 
 fun CounterStrikeState.tick(): List<SideEffect> {
     tick++
-    val newTerroristProbability = 0.001
-    val shootProbability = 0.02
+    val newTerroristProbability = BASE_TERRORIST_PROBABILITY
+    val shootProbability = BASE_SHOOT_PROBABILITY
+
     val effects: MutableList<SideEffect> = mutableListOf()
 
     terrorists.forEach { ter ->
@@ -51,11 +63,18 @@ fun CounterStrikeState.tick(): List<SideEffect> {
                 effects.add(SideEffect.HideTerrorist(ter))
             }
             is TerroristState.Hidden -> {
-                if (Random.nextDouble() < newTerroristProbability) {
+                if (terroristCounter < MAX_TERRORISTS && Random.nextDouble() < newTerroristProbability) {
+                    terroristCounter++
                     ter.state = TerroristState.Show(tick)
                     effects.add(SideEffect.ShowTerrorist(ter))
                     ter.x = ter.coverX
                     ter.y = ter.coverY
+                }
+                if (terroristCounter >= MAX_TERRORISTS && terrorists.count { it.state != TerroristState.Hidden } == 0) {
+                    if (result == null) {
+                        result = GameResult.Win
+                        effects.add(SideEffect.CounterTerroristWin())
+                    }
                 }
             }
             is TerroristState.Die -> {

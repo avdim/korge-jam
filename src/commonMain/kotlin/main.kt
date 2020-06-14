@@ -20,10 +20,10 @@ suspend fun main() = Korge(
 )
 
 object MyModule : Module() {
-//    override val mainScene: KClass<out Scene> = SceneCounterStrike::class
+    //    override val mainScene: KClass<out Scene> = SceneCounterStrike::class
 //    override val mainScene: KClass<out Scene> = SceneMineSweeper::class
 //    override val mainScene: KClass<out Scene> = SceneDesktop::class
-    override val mainScene: KClass<out Scene> = StartScene::class
+    override val mainScene: KClass<out Scene> = SceneStart::class
     override val windowSize: SizeInt
         get() = SizeInt(
             WINDOWS_WIDTH,
@@ -33,8 +33,8 @@ object MyModule : Module() {
     override val bgcolor: RGBA = Colors.BLACK
 
     override suspend fun AsyncInjector.configure() {
-        mapInstance(MyDependency("HELLO WORLD"))
-        mapPrototype { StartScene(get()) }
+        mapInstance(GlobalDependencies())
+        mapPrototype { SceneStart(get()) }
         mapPrototype { SceneCounterStrike(get()) }
         mapPrototype { SceneLoading(get()) }
         mapPrototype { SceneDesktop(get()) }
@@ -43,13 +43,21 @@ object MyModule : Module() {
 
 }
 
-class MyDependency(val value: String)
+class GlobalDependencies() {
+    var exitScene: suspend () -> Unit = {}
+    suspend fun exit() {
+        exitScene()
+    }
+}
 
-class StartScene(val myDependency: MyDependency) : Scene() {
+class SceneStart(val myDependency: GlobalDependencies) : Scene() {
 
     override suspend fun Container.sceneInit() {
         text("Loading...")
         SoundManager.firstSceneInit(stage!!)
+        myDependency.exitScene = {
+            sceneContainer.changeTo<SceneDesktop>()//todo Exception
+        }
     }
 
     override suspend fun Container.sceneMain() {

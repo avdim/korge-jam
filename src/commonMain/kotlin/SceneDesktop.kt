@@ -3,7 +3,7 @@ import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.Bitmap
 import windows.*
 
-class SceneDesktop(val myDependency: MyDependency) : Scene() {
+class SceneDesktop(val myDependency: GlobalDependencies) : Scene() {
 
     override suspend fun Container.sceneInit() {
         solidRect(
@@ -12,7 +12,6 @@ class SceneDesktop(val myDependency: MyDependency) : Scene() {
             COLOR_WIN_DESKTOP
         )
         panelStartWin95(this@SceneDesktop)
-        text("MyScene2: ${myDependency.value}") { filtering = false }
     }
 }
 

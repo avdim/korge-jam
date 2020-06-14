@@ -1,6 +1,6 @@
 package minesweeper
 
-import MyDependency
+import GlobalDependencies
 import SceneDesktop
 import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.view.*
@@ -15,7 +15,7 @@ import windows.WINDOWS_PANEL_HEIGHT
 import windows.buttonWin95
 import kotlin.math.absoluteValue
 
-class SceneMineSweeper(val myDependency: MyDependency) : Scene() {
+class SceneMineSweeper(val myDependency: GlobalDependencies) : Scene() {
 
     override suspend fun Container.sceneInit() {
 

@@ -1,14 +1,12 @@
 package cs
 
-import MyDependency
+import GlobalDependencies
 import SoundManager
 import com.soywiz.klock.DateTime
-import com.soywiz.klock.seconds
 import com.soywiz.korge.animate.AnLibrary
 import com.soywiz.korge.animate.AnMovieClip
 import com.soywiz.korge.animate.serialization.readAni
 import com.soywiz.korge.scene.Scene
-import com.soywiz.korge.time.delay
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.Bitmap
 import com.soywiz.korim.color.Colors
@@ -16,6 +14,7 @@ import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korma.geom.Point
 import com.soywiz.korma.geom.vector.rect
+import hexColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -24,7 +23,7 @@ import windows.WINDOWS_HEIGHT_D
 import windows.WINDOWS_WIDTH_D
 import kotlin.math.sin
 
-class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
+class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
 
     val SNIPER_ZOOM = 3.0
     val SNIPER_SIZE = 320.0
@@ -71,7 +70,9 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         state = CounterStrikeState(terrorists = terroristWrappers.map { it.model })
         addHrUpdater {
             val effects = state.tick()
-            processEffects(effects)
+            launch {
+                processEffects(effects)
+            }
             state.terrorists.forEach {
                 getTerroristWrapper(it).terroristView.x = it.x
                 getTerroristWrapper(it).terroristView.y = it.y
@@ -163,13 +164,13 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         sniper?.removeFromParent()
     }
 
-    private fun processEffects(effects: List<SideEffect>) {
+    private suspend fun Container.processEffects(effects: List<SideEffect>) {
         effects.forEach {
             processEffect(it)
         }
     }
 
-    private fun processEffect(effect: SideEffect) {
+    private suspend fun Container.processEffect(effect: SideEffect) {
         when (effect) {
             is SideEffect.TerroristShot -> {
                 getTerroristWrapper(effect.terrorist)
@@ -196,6 +197,15 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
             is SideEffect.HideTerrorist -> {//todo maybe redundate
                 getTerroristWrapper(effect.terrorist).terroristView.visible = false
             }
+            is SideEffect.CounterTerroristWin -> {
+                SoundManager.csWin.play()
+                text("You win!", 50.0, Colors.GREEN).centerOn(this)
+                launch {
+                    delay(2000)
+                    dependencies.exit()
+//                    sceneContainer.changeTo<SceneDesktop>()
+                }
+            }
         }
     }
 
@@ -208,7 +218,7 @@ class TerroristInstanceData(val instanceName: String, val coverDifX: Int, val co
 class TerroristViewWrapper(
     mc: View?,
     instanceData: TerroristInstanceData,
-    terroristInteractHandler: (TerroristViewWrapper, com.soywiz.korge.input.MouseEvents) -> Unit
+    terroristInteractHandler: suspend (TerroristViewWrapper, com.soywiz.korge.input.MouseEvents) -> Unit
 ) {
     val terroristView = mc as AnMovieClip
     val model: Terrorist = Terrorist(
