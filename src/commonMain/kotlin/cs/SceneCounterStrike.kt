@@ -27,10 +27,14 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
-    lateinit var mainLibrary: AnLibrary
 
     override suspend fun Container.sceneInit() {
-        mainLibrary = resourcesVfs["cs/cs_mansion.ani"].readAni(views)
+
+    }
+
+    override suspend fun Container.sceneMain() {
+//        val state = CounterStrikeState()
+        val mainLibrary: AnLibrary = resourcesVfs["cs/cs_mansion.ani"].readAni(views)
         val mainTimeLine: AnMovieClip = mainLibrary.createMainTimeLine()
         val zoomContainer = container {}
         zoomContainer.addChild(mainTimeLine)
@@ -123,9 +127,6 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
             }
         }
 
-    }
-
-    override suspend fun Container.sceneMain() {
         image(resourcesVfs["cs/awp.png"].readBitmap())
             .alignBottomToBottomOf(sceneView)
             .alignRightToRightOf(sceneView)
