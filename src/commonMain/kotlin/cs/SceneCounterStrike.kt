@@ -106,11 +106,11 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
     }
 
     private fun CoroutineScope.showSniperPos(currentPosGlobal: Point) {
+        hideSniper()
         val targetPos = sniperContainer.globalToLocal(currentPosGlobal)
         val zoomTarget = zoomContainer.globalToLocal(currentPosGlobal)
         zoomContainer.scale = SNIPER_ZOOM
         zoomContainer.position(zoomTarget * (1.0 - SNIPER_ZOOM))
-        hideSniper()
         sniper = sniperContainer.container {
 //                alpha = 0.5
             val sniper = mainLibrary.createMovieClip("sniper")
@@ -161,8 +161,6 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
         launch {
             delay(700)
             hideSniper()
-            zoomContainer.scale = 1.0
-            zoomContainer.xy(0.0, 0.0)
         }
     }
 
@@ -186,6 +184,8 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
     }
 
     fun hideSniper() {
+        zoomContainer.scale = 1.0
+        zoomContainer.xy(0.0, 0.0)
         sniper?.removeFromParent()
     }
 
@@ -235,6 +235,7 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
             }
             is SideEffect.TerroristsWin -> {
                 hideSniper()
+
                 solidRect(WINDOWS_WIDTH_D, WINDOWS_HEIGHT_D, Colors.BLACK)
                     .alpha(0.0)
                     .addHrUpdater { alpha += 0.03 }

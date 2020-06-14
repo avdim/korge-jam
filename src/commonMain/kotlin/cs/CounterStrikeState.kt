@@ -6,7 +6,7 @@ const val FIRE_SINCE_TICK = 20
 const val DIE_TICKS = 100
 const val MAX_TERRORISTS = 20
 const val BASE_SHOOT_PROBABILITY = 0.01
-const val BASE_TERRORIST_PROBABILITY = 0.002
+const val BASE_TERRORIST_PROBABILITY = 0.02
 const val HIT_PROBABILITY = 0.2
 const val HIT_HP = 10
 
