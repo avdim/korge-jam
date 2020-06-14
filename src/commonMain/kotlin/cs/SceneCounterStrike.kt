@@ -50,8 +50,15 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 
     override suspend fun Container.sceneMain() {
         terroristWrappers = listOf(
-            TerroristInstanceData("terrorist1", 60, 0)
-            , TerroristInstanceData("terrorist2", 100, 0, 0.5)
+            TerroristInstanceData(instanceName = "terrorist1", coverDifX = 60, coverDifY = 0, speed = 1.0)
+            , TerroristInstanceData(instanceName = "terrorist2", coverDifX = 100, coverDifY = 20, speed = 0.5)
+//            , TerroristInstanceData(instanceName = "terrorist3", coverDifX = -60, coverDifY = 0, speed = 1.0)
+            , TerroristInstanceData(instanceName = "terrorist4", coverDifX = 60, coverDifY = 0, speed = 1.0)
+            , TerroristInstanceData(instanceName = "terrorist5", coverDifX = -60, coverDifY = 0, speed = 1.0)
+            , TerroristInstanceData(instanceName = "terrorist6", coverDifX = -60, coverDifY = 0, speed = 1.0)
+            , TerroristInstanceData(instanceName = "terrorist7", coverDifX = 60, coverDifY = 0, speed = 1.0)
+            , TerroristInstanceData(instanceName = "terrorist8", coverDifX = -60, coverDifY = 0, speed = 1.0)
+            , TerroristInstanceData(instanceName = "terrorist9", coverDifX = 60, coverDifY = 0, speed = 1.0)
         ).map { data ->
             val instanceName = data.instanceName
             TerroristViewWrapper(mainTimeLine[instanceName], data) { wrapper, mouseEvents ->
