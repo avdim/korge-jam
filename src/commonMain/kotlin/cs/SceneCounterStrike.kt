@@ -23,7 +23,7 @@ import kotlin.math.sin
 class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 
     lateinit var state: CounterStrikeState
-    val terroristModelToWrapper: MutableMap<Terrorist, TerroristViewWrapper> = mutableMapOf()//todo redundant
+    private val terroristWrappers: MutableList<TerroristViewWrapper> = mutableListOf()
 
     override suspend fun Container.sceneInit() {
 
@@ -97,31 +97,34 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 
         val terroristInteractHandler: (TerroristViewWrapper, com.soywiz.korge.input.MouseEvents) -> Unit =
             { wrapper, mouseEvents ->
-                val model: Terrorist = terroristModelToWrapper.entries.first { it.value == wrapper }.key
                 val targetPos = sniperContainer.globalToLocal(mouseEvents.currentPosGlobal)
                 val zoomTarget = zoomContainer.globalToLocal(mouseEvents.currentPosGlobal)
                 val zoom = 4.0
                 zoomContainer.scale = zoom
                 zoomContainer.position(zoomTarget * (1.0 - zoom))
                 showSniperTarget(targetPos.x, targetPos.y)
-                processEffects(state.kill(model), wrapper)
+                processEffects(state.kill(wrapper.model))
             }
-        val terWrapper = TerroristViewWrapper(mainTimeLine["terrorist1"])
-        terroristModelToWrapper.put(terWrapper.model, terWrapper)
-        with(terWrapper) {
-            terroristView.timelineRunner.gotoAndPlay("default")
-            val terroristMask = terroristView["my_mask"]!!
-            terroristMask.apply {
-                alpha = 0.0
-                myOnInteract {
-                    terroristInteractHandler(this@with, it)
-                    delay(200.milliseconds)
-                    terroristView.timelineRunner.gotoAndPlay("die")
-                    delay(1.seconds)
-                    hideSniper()
-                    zoomContainer.scale = 1.0
-                    zoomContainer.xy(0.0, 0.0)
-                    terroristView.timelineRunner.gotoAndPlay("default")
+
+        val terroristViewInstanceNames = listOf("terrorist1", "terrorist2")
+
+        terroristViewInstanceNames.map {instanceName->
+            TerroristViewWrapper(mainTimeLine[instanceName]).also { wrapper ->
+                terroristWrappers.add(wrapper)
+                wrapper.terroristView.timelineRunner.gotoAndPlay("default")
+                val terroristMask = wrapper.terroristView["my_mask"]!!
+                terroristMask.apply {
+                    alpha = 0.0
+                    myOnInteract {
+                        terroristInteractHandler(wrapper, it)
+                        delay(200.milliseconds)
+                        wrapper.terroristView.timelineRunner.gotoAndPlay("die")
+                        delay(1.seconds)
+                        hideSniper()
+                        zoomContainer.scale = 1.0
+                        zoomContainer.xy(0.0, 0.0)
+                        wrapper.terroristView.timelineRunner.gotoAndPlay("default")
+                    }
                 }
             }
         }
@@ -143,33 +146,33 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                 }
             }
 
+
         state = CounterStrikeState(
-            terrorists = listOf(
-                terWrapper.model
-            )
+            terrorists = terroristWrappers.map { it.model }
         )
         addHrUpdater {
             val effects = state.tick()
-            processEffects(effects, terWrapper)
+            processEffects(effects)
             state.terrorists
         }
     }
 
-    private fun processEffects(effects: List<SideEffect>, terWrapper: TerroristViewWrapper) {
+    private fun processEffects(effects: List<SideEffect>) {
         effects.forEach {
-            processEffect(it, terWrapper)
+            processEffect(it)
         }
     }
 
-    private fun processEffect(it: SideEffect, terWrapper: TerroristViewWrapper) {
-        if (it is SideEffect.TerroristShot) {
-            it.terrorist
-            terWrapper.terroristView.timelineRunner.gotoAndPlay("fire")
+    private fun processEffect(effect: SideEffect) {
+        if (effect is SideEffect.TerroristShot) {
+            terroristWrappers
+                .first { it.model == effect.terrorist }
+                .terroristView.timelineRunner.gotoAndPlay("fire")
             with(SoundManager) {
                 listOf(csAk1, csAk2).random().play()
             }
         }
-        if (it is SideEffect.PlayerShot) {
+        if (effect is SideEffect.PlayerShot) {
             SoundManager.csAwp.play()
         }
     }
