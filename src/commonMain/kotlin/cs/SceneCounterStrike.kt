@@ -14,6 +14,7 @@ import com.soywiz.korim.bitmap.Bitmap
 import com.soywiz.korim.color.Colors
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
+import com.soywiz.korma.geom.Point
 import com.soywiz.korma.geom.vector.rect
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -33,9 +34,8 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
     lateinit var zoomContainer: Container
     lateinit var sniperContainer: Container
     lateinit var sniperRifle: Bitmap
+    lateinit var terroristWrappers: List<TerroristViewWrapper>
     var sniper: View? = null
-
-    private val terroristWrappers: MutableList<TerroristViewWrapper> = mutableListOf()
 
     override suspend fun Container.sceneInit() {
         mainLibrary = resourcesVfs["cs/cs_mansion.ani"].readAni(views)
@@ -49,24 +49,21 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 
     override suspend fun Container.sceneMain() {
 
-        listOf("terrorist1", "terrorist2").map { instanceName ->
-            TerroristViewWrapper(mainTimeLine[instanceName]){ wrapper, mouseEvents ->
-                val targetPos = sniperContainer.globalToLocal(mouseEvents.currentPosGlobal)
-                val zoomTarget = zoomContainer.globalToLocal(mouseEvents.currentPosGlobal)
-                zoomContainer.scale = SNIPER_ZOOM
-                zoomContainer.position(zoomTarget * (1.0 - SNIPER_ZOOM))
-                showSniperTarget(targetPos.x, targetPos.y)
-                processEffects(state.kill(wrapper.model))
-                launch {
-                    delay(1.seconds)
-                    hideSniper()
-                    zoomContainer.scale = 1.0
-                    zoomContainer.xy(0.0, 0.0)
+        terroristWrappers =
+            listOf("terrorist1", "terrorist2")
+                .map { instanceName ->
+                    TerroristViewWrapper(mainTimeLine[instanceName]) { wrapper, mouseEvents ->
+                        val currentPosGlobal = mouseEvents.currentPosGlobal
+                        showSniperPos(currentPosGlobal)
+                        processEffects(state.kill(wrapper.model))
+                        launch {
+                            delay(1.seconds)
+                            hideSniper()
+                            zoomContainer.scale = 1.0
+                            zoomContainer.xy(0.0, 0.0)
+                        }
+                    }
                 }
-            }.also { wrapper ->
-                terroristWrappers.add(wrapper)
-            }
-        }
 
         sniperRifleLoopAnimation()
 
@@ -83,38 +80,19 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         }
     }
 
-    private fun sniperRifleLoopAnimation() {
-        sniperContainer.image(sniperRifle)
-            .alignBottomToBottomOf(sceneView)
-            .alignRightToRightOf(sceneView)
-            .apply {
-                x += 50.0
-                y += 50.0
-                val baseX = x
-                val baseY = y
-//                anchor(0.8, 0.8)
-                addUpdater {
-                    val phase = DateTime.now().unixMillisDouble / 2000
-                    x = baseX + 40 * sin(phase * 1.8)
-                    y = baseY + 30 * sin(phase)
-                    rotation
-                }
-            }
-    }
-
-    fun hideSniper() {
-        sniper?.removeFromParent()
-    }
-
-    fun showSniperTarget(targetX: Double, targetY: Double) {
+    private fun showSniperPos(currentPosGlobal: Point) {
+        val targetPos = sniperContainer.globalToLocal(currentPosGlobal)
+        val zoomTarget = zoomContainer.globalToLocal(currentPosGlobal)
+        zoomContainer.scale = SNIPER_ZOOM
+        zoomContainer.position(zoomTarget * (1.0 - SNIPER_ZOOM))
         hideSniper()
         sniper = sniperContainer.container {
 //                alpha = 0.5
             val sniper = mainLibrary.createMovieClip("sniper")
             sniper.width = SNIPER_SIZE
             sniper.height = SNIPER_SIZE
-            sniper.x = targetX - SNIPER_SIZE / 2
-            sniper.y = targetY - SNIPER_SIZE / 2
+            sniper.x = targetPos.x - SNIPER_SIZE / 2
+            sniper.y = targetPos.y - SNIPER_SIZE / 2
 //            sniper.xy(targetX - SNIPER_SIZE/2, sniper.y - targetY)
             addChild(sniper)
 
@@ -155,6 +133,29 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         }.also {
             sniperContainer.addChild(it)
         }
+    }
+
+    private fun sniperRifleLoopAnimation() {
+        sniperContainer.image(sniperRifle)
+            .alignBottomToBottomOf(sceneView)
+            .alignRightToRightOf(sceneView)
+            .apply {
+                x += 50.0
+                y += 50.0
+                val baseX = x
+                val baseY = y
+//                anchor(0.8, 0.8)
+                addUpdater {
+                    val phase = DateTime.now().unixMillisDouble / 2000
+                    x = baseX + 40 * sin(phase * 1.8)
+                    y = baseY + 30 * sin(phase)
+                    rotation
+                }
+            }
+    }
+
+    fun hideSniper() {
+        sniper?.removeFromParent()
     }
 
     private fun processEffects(effects: List<SideEffect>) {
@@ -200,7 +201,8 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 
 class TerroristViewWrapper(
     mc: View?,
-    terroristInteractHandler: (TerroristViewWrapper, com.soywiz.korge.input.MouseEvents)->Unit) {
+    terroristInteractHandler: (TerroristViewWrapper, com.soywiz.korge.input.MouseEvents) -> Unit
+) {
     val terroristView = mc as AnMovieClip
     val model: Terrorist = Terrorist(
         x = terroristView.x,
