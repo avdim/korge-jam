@@ -10,6 +10,7 @@ import com.soywiz.korge.animate.serialization.readAni
 import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.time.delay
 import com.soywiz.korge.view.*
+import com.soywiz.korim.bitmap.Bitmap
 import com.soywiz.korim.color.Colors
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
@@ -31,6 +32,7 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
     lateinit var state: CounterStrikeState
     lateinit var zoomContainer:Container
     lateinit var sniperContainer:Container
+    lateinit var sniperRifle:Bitmap
     var sniper: View? = null
 
     private val terroristWrappers: MutableList<TerroristViewWrapper> = mutableListOf()
@@ -42,6 +44,7 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         zoomContainer.addChild(mainTimeLine)
         mainTimeLine.xy(0, 0)
         sniperContainer = container { }
+        sniperRifle = resourcesVfs["cs/awp.png"].readBitmap()
     }
 
     override suspend fun Container.sceneMain() {
@@ -75,8 +78,23 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
             }
         }
 
-        //sniper rifle animation:
-        image(resourcesVfs["cs/awp.png"].readBitmap())
+        sniperRifleLoopAnimation()
+
+        state = CounterStrikeState(
+            terrorists = terroristWrappers.map { it.model }
+        )
+        addHrUpdater {
+            val effects = state.tick()
+            processEffects(effects)
+            state.terrorists.forEach {
+                getTerroristWrapper(it).terroristView.x = it.x
+                getTerroristWrapper(it).terroristView.y = it.y
+            }
+        }
+    }
+
+    private fun sniperRifleLoopAnimation() {
+        sniperContainer.image(sniperRifle)
             .alignBottomToBottomOf(sceneView)
             .alignRightToRightOf(sceneView)
             .apply {
@@ -92,19 +110,6 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                     rotation
                 }
             }
-
-
-        state = CounterStrikeState(
-            terrorists = terroristWrappers.map { it.model }
-        )
-        addHrUpdater {
-            val effects = state.tick()
-            processEffects(effects)
-            state.terrorists.forEach {
-                getTerroristWrapper(it).terroristView.x = it.x
-                getTerroristWrapper(it).terroristView.y = it.y
-            }
-        }
     }
 
     fun hideSniper() {
