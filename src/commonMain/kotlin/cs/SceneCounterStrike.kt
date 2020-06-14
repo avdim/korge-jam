@@ -98,13 +98,13 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         val terroristInteractHandler: (TerroristViewWrapper, com.soywiz.korge.input.MouseEvents) -> Unit =
             { wrapper, mouseEvents ->
                 val model: Terrorist = terroristModelToWrapper.entries.first { it.value == wrapper }.key
-                state.kill(model)
                 val targetPos = sniperContainer.globalToLocal(mouseEvents.currentPosGlobal)
                 val zoomTarget = zoomContainer.globalToLocal(mouseEvents.currentPosGlobal)
                 val zoom = 4.0
                 zoomContainer.scale = zoom
                 zoomContainer.position(zoomTarget * (1.0 - zoom))
                 showSniperTarget(targetPos.x, targetPos.y)
+                processEffects(state.kill(model), wrapper)
             }
         val terWrapper = TerroristViewWrapper(mainTimeLine["terrorist1"])
         terroristModelToWrapper.put(terWrapper.model, terWrapper)
@@ -148,24 +148,32 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                 terWrapper.model
             )
         )
-        //todo put terroristModelToWrapper
         addHrUpdater {
             val effects = state.tick()
-            effects.forEach {
-                if (it is SideEffect.TerroristShot) {
-                    it.terrorist
-                    terWrapper.terroristView.timelineRunner.gotoAndPlay("fire")
-                    with(SoundManager) {
-                        listOf(csAk1, csAk2).random().play()
-                    }
-                }
-                if (it is SideEffect.PlayerShot) {
-                    SoundManager.csAwp.play()
-                }
-            }
+            processEffects(effects, terWrapper)
             state.terrorists
         }
     }
+
+    private fun processEffects(effects: List<SideEffect>, terWrapper: TerroristViewWrapper) {
+        effects.forEach {
+            processEffect(it, terWrapper)
+        }
+    }
+
+    private fun processEffect(it: SideEffect, terWrapper: TerroristViewWrapper) {
+        if (it is SideEffect.TerroristShot) {
+            it.terrorist
+            terWrapper.terroristView.timelineRunner.gotoAndPlay("fire")
+            with(SoundManager) {
+                listOf(csAk1, csAk2).random().play()
+            }
+        }
+        if (it is SideEffect.PlayerShot) {
+            SoundManager.csAwp.play()
+        }
+    }
+
 }
 
 class TerroristViewWrapper(mc: View?) {

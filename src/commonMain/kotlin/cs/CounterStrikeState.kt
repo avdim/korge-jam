@@ -36,7 +36,7 @@ sealed class SideEffect {
 fun CounterStrikeState.tick(): List<SideEffect> {
     tick++
     val newTerroristProbability = 0.1 * tick / (terrorists.size + 1)
-    val shootProbability = 0.1
+    val shootProbability = 0.02
     val effects: MutableList<SideEffect> = mutableListOf()
 
     terrorists.forEach { terrorist ->
