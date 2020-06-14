@@ -23,6 +23,9 @@ import kotlin.math.sin
 
 class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 
+    val SNIPER_ZOOM = 3.0
+    val SNIPER_SIZE = 320.0
+
     lateinit var state: CounterStrikeState
     private val terroristWrappers: MutableList<TerroristViewWrapper> = mutableListOf()
 
@@ -46,8 +49,7 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         fun showSniperTarget(targetX: Double, targetY: Double) {
             hideSniper()
             sniper = container {
-                alpha = 0.5
-                val SNIPER_SIZE = 200.0
+//                alpha = 0.5
                 val sniper = mainLibrary.createMovieClip("sniper")
                 sniper.width = SNIPER_SIZE
                 sniper.height = SNIPER_SIZE
@@ -100,9 +102,8 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
             { wrapper, mouseEvents ->
                 val targetPos = sniperContainer.globalToLocal(mouseEvents.currentPosGlobal)
                 val zoomTarget = zoomContainer.globalToLocal(mouseEvents.currentPosGlobal)
-                val zoom = 4.0
-                zoomContainer.scale = zoom
-                zoomContainer.position(zoomTarget * (1.0 - zoom))
+                zoomContainer.scale = SNIPER_ZOOM
+                zoomContainer.position(zoomTarget * (1.0 - SNIPER_ZOOM))
                 showSniperTarget(targetPos.x, targetPos.y)
                 processEffects(state.kill(wrapper.model))
                 launch {
@@ -121,12 +122,12 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                     alpha = 0.0
                     myOnInteract {
                         terroristInteractHandler(wrapper, it)
-                        wrapper.terroristView.timelineRunner.gotoAndPlay("default")
                     }
                 }
             }
         }
 
+        //sniper rifle animation:
         image(resourcesVfs["cs/awp.png"].readBitmap())
             .alignBottomToBottomOf(sceneView)
             .alignRightToRightOf(sceneView)
@@ -151,7 +152,10 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         addHrUpdater {
             val effects = state.tick()
             processEffects(effects)
-            state.terrorists
+            state.terrorists.forEach {
+                getTerroristWrapper(it).terroristView.x = it.x
+                getTerroristWrapper(it).terroristView.y = it.y
+            }
         }
     }
 
@@ -171,7 +175,6 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                 }
             }
             is SideEffect.KillTerrorist -> {
-                effect.terrorist
                 SoundManager.csAwp.play()
                 launch {
                     delay(200)
@@ -182,7 +185,9 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                 }
             }
             is SideEffect.ShowTerrorist -> {
-                getTerroristWrapper(effect.terrorist).terroristView.visible = true
+                val terroristWrapper = getTerroristWrapper(effect.terrorist)
+                terroristWrapper.terroristView.visible = true
+                terroristWrapper.terroristView.timelineRunner.gotoAndPlay("default")
             }
             is SideEffect.HideTerrorist -> {//todo maybe redundate
                 getTerroristWrapper(effect.terrorist).terroristView.visible = false
@@ -198,11 +203,11 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
 class TerroristViewWrapper(mc: View?) {
     val terroristView = mc as AnMovieClip
     val model: Terrorist = Terrorist(
-        x = 0.0,
-        y = 0.0,
-        showX = terroristView.x,
-        showY = terroristView.y,
-        hideX = terroristView.x + 100.0,
-        hideY = terroristView.y
+        x = terroristView.x,
+        y = terroristView.y,
+        openX = terroristView.x,
+        openY = terroristView.y,
+        coverX = terroristView.x + 100.0,
+        coverY = terroristView.y
     )
 }

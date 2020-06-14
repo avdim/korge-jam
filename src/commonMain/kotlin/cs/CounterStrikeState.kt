@@ -12,15 +12,15 @@ class CounterStrikeState(
 class Terrorist(
     var x: Double,
     var y: Double,
-    val showX: Double,
-    val showY: Double,
-    val hideX: Double,
-    val hideY: Double,
+    val openX: Double,
+    val openY: Double,
+    val coverX: Double,
+    val coverY: Double,
     var state: TerroristState = TerroristState.Hidden
 )
 
 const val FIRE_SINCE_TICK = 20
-const val DIE_TICKS = 30
+const val DIE_TICKS = 100
 
 sealed class TerroristState {
     class Die(val tick: Int) : TerroristState()
@@ -37,7 +37,7 @@ sealed class SideEffect {
 
 fun CounterStrikeState.tick(): List<SideEffect> {
     tick++
-    val newTerroristProbability = 0.1 * tick / (terrorists.size + 1)
+    val newTerroristProbability = 1.0
     val shootProbability = 0.02
     val effects: MutableList<SideEffect> = mutableListOf()
 
@@ -48,6 +48,8 @@ fun CounterStrikeState.tick(): List<SideEffect> {
                 if (Random.nextDouble() < newTerroristProbability) {
                     terrorist.state = TerroristState.Show(tick)
                     effects.add(SideEffect.ShowTerrorist(terrorist))
+                    terrorist.x = terrorist.coverX
+                    terrorist.y = terrorist.coverY
                 }
             }
             is TerroristState.Die -> {
@@ -62,7 +64,8 @@ fun CounterStrikeState.tick(): List<SideEffect> {
                         effects.add(SideEffect.TerroristShot(terrorist))
                     }
                 }
-                terrorist.x += (terrorist.showX - terrorist.x) / 10
+                terrorist.x += (terrorist.openX - terrorist.x) / 10
+                terrorist.y += (terrorist.openY - terrorist.y) / 10
             }
         }
     }
