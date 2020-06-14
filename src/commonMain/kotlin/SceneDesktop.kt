@@ -26,18 +26,10 @@ class SceneDesktop(val myDependency: GlobalDependencies) : Scene() {
                 sceneContainer.changeTo<SceneCounterStrike>()
             },
             MenuItem(
-                resourcesVfs["iexplorer.png"].readBitmap(),
-                "Internet Explorer",
-                100,
-                180
-            ) {
-
-            },
-            MenuItem(
                 resourcesVfs["mine.png"].readBitmap(),
                 "Minesweeper",
                 100,
-                280
+                180
             ) {
                 sceneContainer.changeTo<SceneMineSweeper>()
             }
