@@ -43,6 +43,7 @@ class SceneDesktop(val myDependency: GlobalDependencies) : Scene() {
             }
         )
 
+        //Desktop icons
         menuItems.forEach { item ->
             container {
                 val img = image(item.img).size(WINDOWS_PANEL_HEIGHT, WINDOWS_PANEL_HEIGHT)

@@ -1,24 +1,30 @@
 package minesweeper
 
 import GlobalDependencies
+import MenuItem
 import SceneDesktop
 import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.view.*
 import com.soywiz.korim.bitmap.Bitmap
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
+import cs.SceneCounterStrike
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import myOnClickOnce
 import myOnInteract
-import windows.WINDOWS_PANEL_HEIGHT
-import windows.buttonWin95
+import windows.*
 import kotlin.math.absoluteValue
 
 class SceneMineSweeper(val myDependency: GlobalDependencies) : Scene() {
 
     override suspend fun Container.sceneInit() {
-
+        solidRect(
+            WINDOWS_WIDTH_D,
+            WINDOWS_HEIGHT_D,
+            COLOR_WIN_DESKTOP
+        )
     }
 
     override suspend fun Container.sceneMain() {
@@ -50,13 +56,43 @@ class SceneMineSweeper(val myDependency: GlobalDependencies) : Scene() {
         )
 
         container {
-            stateFlow.collectLatest { state ->
-                removeChildren()
-                renderMineState(assets, state, 100.0, 100.0, userInput = {
-                    stateFlow.value = mineSweepReduce(state, it)//todo actor save concurrency
-                })
+            launch {
+                stateFlow.collectLatest { state ->
+                    removeChildren()
+                    renderMineState(assets, state, 100.0, 100.0, userInput = {
+                        stateFlow.value = mineSweepReduce(state, it)//todo actor save concurrency
+                    })
+                }
             }
         }
+
+        val menuItems: List<MenuItem> = listOf(
+            MenuItem(
+                resourcesVfs["cs.png"].readBitmap(),
+                "Counter Strike",
+                100,
+                80
+            ) {
+                sceneContainer.changeTo<SceneCounterStrike>()
+            },
+            MenuItem(
+                resourcesVfs["iexplorer.png"].readBitmap(),
+                "Internet Explorer",
+                100,
+                180
+            ) {
+
+            },
+            MenuItem(
+                resourcesVfs["mine.png"].readBitmap(),
+                "Minesweeper",
+                100,
+                280
+            ) {
+                sceneContainer.changeTo<SceneMineSweeper>()
+            }
+        )
+        panelStartWin95(this@SceneMineSweeper, menuItems)
     }
 }
 
@@ -105,10 +141,10 @@ suspend fun Container.renderMineState(
         }
     }
     if (state.checkWin()) {
-        text("win").xy(200,200)
+        text("win").xy(200, 200)
     }
     if (state.checkLoose()) {
-        text("loose").xy(200,200)
+        text("loose").xy(200, 200)
     }
 }
 
