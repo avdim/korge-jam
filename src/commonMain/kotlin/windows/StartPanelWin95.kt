@@ -9,7 +9,7 @@ import com.soywiz.korio.file.std.resourcesVfs
 import cs.SceneCounterStrike
 import myOnInteract
 
-suspend fun Container.panelStartWin95(scene: Scene) {
+suspend fun Container.panelStartWin95(scene: Scene, menuItems: List<MenuItem>) {
     var menuShown = false
     val downPanel = solidRect(
         WINDOWS_WIDTH_D,
@@ -19,26 +19,7 @@ suspend fun Container.panelStartWin95(scene: Scene) {
         .alignBottomToBottomOf(scene.sceneView)
 
     val startMenuContainer = container {
-        menuWin95(downPanel, listOf(
-            MenuItem(
-                resourcesVfs["cs.png"].readBitmap(),
-                "Counter Strike"
-            ) {
-                scene.sceneContainer.changeTo<SceneCounterStrike>()
-            },
-            MenuItem(
-                resourcesVfs["iexplorer.png"].readBitmap(),
-                "Internet Explorer"
-            ) {
-
-            },
-            MenuItem(
-                resourcesVfs["mine.png"].readBitmap(),
-                "Minesweeper"
-            ) {
-                scene.sceneContainer.changeTo<SceneMineSweeper>()
-            }
-        ))
+        menuWin95(downPanel, menuItems)
     }
 
     addUpdater {

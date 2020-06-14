@@ -22,4 +22,4 @@ suspend fun Container.menuWin95(alignDownPanel: View, items: List<MenuItem>) {
 }
 
 private suspend fun Container.menuButton(img: Bitmap, text: String, lambda: Container.() -> Unit) =
-    buttonWin95(WINDOWS_PANEL_HEIGHT * 6, WINDOWS_PANEL_HEIGHT, img, text, lambda)
+    buttonWin95(WINDOWS_PANEL_HEIGHT * 7, WINDOWS_PANEL_HEIGHT, img, text, lambda)

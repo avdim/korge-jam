@@ -14,7 +14,7 @@ suspend fun Container.buttonWin95(
     fixedSizeContainer(width, height) {
         val btnContainer = this
         val outerBorder = solidRect(width, height, COLOR_WIN_BUTTON_BORDER).centerOn(btnContainer)
-        val innerBorder = solidRect(width * 0.9, height * 0.9, COLOR_WIN_BUTTON_DEFAULT)
+        val innerBorder = solidRect(width - 10, height - 10, COLOR_WIN_BUTTON_DEFAULT)
             .centerOn(outerBorder)
 
 //            this.width = width
