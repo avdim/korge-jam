@@ -62,9 +62,11 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
         ).map { data ->
             val instanceName = data.instanceName
             TerroristViewWrapper(mainTimeLine[instanceName], data) { wrapper, mouseEvents ->
-                val currentPosGlobal = mouseEvents.currentPosGlobal
-                showSniperPos(currentPosGlobal)
-                processEffects(state.kill(wrapper.model))
+                if (state.result == null) {
+                    val currentPosGlobal = mouseEvents.currentPosGlobal
+                    showSniperPos(currentPosGlobal)
+                    processEffects(state.kill(wrapper.model))
+                }
             }
         }
         sniperRifleLoopAnimation()
@@ -193,8 +195,10 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
             is SideEffect.TerroristShot -> {
                 getTerroristWrapper(effect.terrorist)
                     .terroristView.timelineRunner.gotoAndPlay("fire")
-                with(SoundManager) {
-                    listOf(csAk1, csAk2).random().play()
+                if (state.result == null) {
+                    with(SoundManager) {
+                        listOf(csAk1, csAk2).random().play()
+                    }
                 }
             }
             is SideEffect.KillTerrorist -> {
@@ -225,12 +229,13 @@ class SceneCounterStrike(val dependencies: GlobalDependencies) : Scene() {
                 }
             }
             is SideEffect.TerroristsWin -> {
-                SoundManager.csLose.play()
                 solidRect(WINDOWS_WIDTH_D, WINDOWS_HEIGHT_D, Colors.BLACK)
                     .alpha(0.0)
                     .addHrUpdater { alpha += 0.03 }
                 text("You loose :(", 50.0, Colors.RED).centerOn(this)
                 launch {
+                    delay(500)
+                    SoundManager.csLose.play()
                     delay(2000)
                     dependencies.exit()
 //                    sceneContainer.changeTo<SceneDesktop>()
