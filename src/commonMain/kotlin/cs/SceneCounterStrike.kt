@@ -16,6 +16,7 @@ import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.file.std.resourcesVfs
 import com.soywiz.korma.geom.Point
 import com.soywiz.korma.geom.vector.rect
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import myOnInteract
@@ -57,12 +58,6 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
                 val currentPosGlobal = mouseEvents.currentPosGlobal
                 showSniperPos(currentPosGlobal)
                 processEffects(state.kill(wrapper.model))
-                launch {
-                    delay(1.seconds)
-                    hideSniper()
-                    zoomContainer.scale = 1.0
-                    zoomContainer.xy(0.0, 0.0)
-                }
             }
         }
         sniperRifleLoopAnimation()
@@ -77,7 +72,7 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
         }
     }
 
-    private fun showSniperPos(currentPosGlobal: Point) {
+    private fun CoroutineScope.showSniperPos(currentPosGlobal: Point) {
         val targetPos = sniperContainer.globalToLocal(currentPosGlobal)
         val zoomTarget = zoomContainer.globalToLocal(currentPosGlobal)
         zoomContainer.scale = SNIPER_ZOOM
@@ -129,6 +124,12 @@ class SceneCounterStrike(val myDependency: MyDependency) : Scene() {
             }
         }.also {
             sniperContainer.addChild(it)
+        }
+        launch {
+            delay(700)
+            hideSniper()
+            zoomContainer.scale = 1.0
+            zoomContainer.xy(0.0, 0.0)
         }
     }
 
